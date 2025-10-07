@@ -1,4 +1,4 @@
-import { Button } from "@nextui-org/button"; // look at ui framework (not called nextui anymore)
+import { Button } from "@heroui/button"; // look at ui framework (not called nextui anymore)
 
 // What should happen when the button is clicked vs hovered
 type Props = {

@@ -1,5 +1,5 @@
 
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { Route, Routes, useHref, useNavigate } from "react-router-dom";
 
 
@@ -14,7 +14,7 @@ function App() {
 
   // ADD AUTH to home page
   return (
-    <NextUIProvider navigate={navigate} useHref={useHref}>
+    <HeroUIProvider navigate={navigate} useHref={useHref}>
       <Routes>
         <Route path="/" element={<Signin />} />
         <Route path="login" element={<Login />} />
@@ -22,7 +22,7 @@ function App() {
         <Route path="/go-mode/:questId" element={<GoMode />} />
         <Route path="/profile/:userName" element={<Profile />} />
       </Routes> 
-    </NextUIProvider>
+    </HeroUIProvider>
   );
 };
 
