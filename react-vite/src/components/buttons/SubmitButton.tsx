@@ -2,16 +2,16 @@ import { Button } from "@heroui/button";
 
 type Props = {
     onClick: () => void,
-    onHover: () => void,
+    //onHover: () => void,
     ariaLabel: string
 };
 
-const SubmitButton = ({onClick, onHover, ariaLabel}: Props) => {
+const SubmitButton = ({onClick, ariaLabel}: Props) => {
     return (
         <Button
             aria-label={ariaLabel}
             onPress={onClick}
-            onHover={onHover}
+            //onHover={onHover}
             radius="full"
         >
             <i className="fa-solid">Submit</i>

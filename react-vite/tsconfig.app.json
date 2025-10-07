@@ -8,6 +8,17 @@
     "types": ["vite/client"],
     "skipLibCheck": true,
 
+    /* File Path Aliases */
+    "baseUrl": "./src", // Sets the base directory for resolving modules
+    "paths": {
+      "@components/*": ["./components/*"], 
+      "@pages/*": ["./components/pages/*"],
+      "@buttons/*": ["./components/buttons/*"],
+      "@cards/*": ["./components/cards/*"],
+      "@inputs/*": ["./components/inputs/*"],
+  
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

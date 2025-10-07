@@ -12,13 +12,13 @@ import Profile from "./components/pages/Profile";
 function App() {
   const navigate = useNavigate();
 
-  // ADD AUTH to home page
+  // TODO: ADD AUTH to home page
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
       <Routes>
         <Route path="/" element={<Signin />} />
         <Route path="login" element={<Login />} />
-        <Route path="home" element={<WanderMode />} />
+        <Route path="home" element={<WanderMode />} /> 
         <Route path="/go-mode/:questId" element={<GoMode />} />
         <Route path="/profile/:userName" element={<Profile />} />
       </Routes> 
