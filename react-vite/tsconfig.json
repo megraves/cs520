@@ -13,6 +13,7 @@
       "@buttons/*": ["./components/buttons/*"],
       "@cards/*": ["./components/cards/*"],
       "@inputs/*": ["./components/inputs/*"],
+      "@lib/*": ["./lib/*"],
   
     },
   },

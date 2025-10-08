@@ -1,8 +1,9 @@
-import LogoutButton from "@buttons/LogoutButton";
+//import LogoutButton from "@buttons/LogoutButton";
 
 const Profile = () => {
     return (
-        <LogoutButton/>
+        <></>
+        //<LogoutButton></LogoutButton>
     );
 };
 

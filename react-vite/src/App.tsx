@@ -1,4 +1,3 @@
-
 import { HeroUIProvider } from "@heroui/react";
 import { Route, Routes, useHref, useNavigate } from "react-router-dom";
 
@@ -16,7 +15,7 @@ function App() {
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
       <Routes>
-        <Route path="/" element={<Signin />} />
+        <Route path="/" element={<Signin/>}/>
         <Route path="login" element={<Login />} />
         <Route path="home" element={<WanderMode />} /> 
         <Route path="/go-mode/:questId" element={<GoMode />} />
