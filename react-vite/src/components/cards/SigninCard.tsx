@@ -2,7 +2,7 @@ import SubmitButton from "../buttons/SubmitButton";
 import { Form, Input } from "@heroui/react";
 import { useState } from "react";
 
-const LoginCard = () => {
+const SigninCard = () => {
     // const [errors, setErrors] = useState<Error | null>(null);
     const [submitted, setSubmitted] = useState<string | null>(null);
     const [password, setPassword] = useState('');
@@ -14,17 +14,24 @@ const LoginCard = () => {
     }
 
     const validatePassword = (pass: string) => {
-        //TODO: set password requirements and return errors based on regex
         return pass;
     }
 
     return (
-        <Form
+                <Form
             className="w-full justify-center items-center space-y-4"
             onReset={() => setSubmitted(null)}
             onSubmit={onSubmit}
         >
             <div className="flex flex-col gap-4 max-w-md">
+                <Input
+                isRequired
+                label="Name"
+                labelPlacement="outside"
+                name="name"
+                placeholder="Enter your name"
+                />
+
                 <Input
                 isRequired
                 label="Email"
@@ -52,4 +59,4 @@ const LoginCard = () => {
     );
 };
 
-export default LoginCard;
+export default SigninCard;
