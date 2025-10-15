@@ -17,7 +17,11 @@ function Login() {
 //   }
 
   return (
-    <LoginCard></LoginCard>
+    <div className="w-full min-h-screen bg-neutral-300">
+      <div className="flex justify-center items-center h-screen">
+        <LoginCard></LoginCard>
+      </div>
+    </div>
   )
 }
 
