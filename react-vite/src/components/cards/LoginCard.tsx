@@ -39,7 +39,7 @@ const LoginCard = () => {
             onReset={() => setSubmitted(null)}
             onSubmit={onSubmit}
             >
-            <div className="flex w-full flex-wrap gap-7">
+            <div className="flex w-full flex-col flex-wrap gap-7">
                 <h1 className="text-xl font-semibold">Log In</h1>
                 <Input
                 isRequired
@@ -63,8 +63,8 @@ const LoginCard = () => {
                 value={password}
                 onValueChange={setPassword}
                 />
+                <SubmitButton onClick={onSubmit} ariaLabel="Submit"></SubmitButton> 
             </div>
-            <SubmitButton onClick={onSubmit} ariaLabel="Submit"></SubmitButton> 
             <div> Don't have an account? <a href="http://localhost:5173/" className="underline decoration-sky-500 text-sky-500"> Sign up </a></div>
         </Form>  
         </div>

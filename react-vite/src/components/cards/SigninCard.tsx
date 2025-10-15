@@ -18,18 +18,21 @@ const SigninCard = () => {
     }
 
     return (
-                <Form
-            className="w-full justify-center items-center space-y-4"
+        <div className="max-w-sm w-full mx-auto rounded-2xl p-6 sm:max-w-md md:max-w-lg lg:max-w-xl">
+            <Form
+            className="w-full justify-center items-center space-y-7"
             onReset={() => setSubmitted(null)}
             onSubmit={onSubmit}
-        >
-            <div className="flex flex-col gap-4 max-w-md">
+            >
+            <div className="flex w-full flex-col flex-wrap gap-7">
+                <h1 className="text-xl font-semibold">Sign Up</h1>
+
                 <Input
                 isRequired
-                label="Name"
+                label="Username"
                 labelPlacement="outside"
-                name="name"
-                placeholder="Enter your name"
+                name="username"
+                placeholder="KingArthur"
                 />
 
                 <Input
@@ -37,8 +40,9 @@ const SigninCard = () => {
                 label="Email"
                 labelPlacement="outside"
                 name="email"
-                placeholder="Enter your email"
+                placeholder="kingarthur@campusquest.com"
                 type="email"
+                variant="bordered"
                 />
 
                 <Input
@@ -53,9 +57,11 @@ const SigninCard = () => {
                 value={password}
                 onValueChange={setPassword}
                 />
+                <SubmitButton onClick={onSubmit} ariaLabel="Submit"></SubmitButton> 
             </div>
-            <SubmitButton onClick={onSubmit} ariaLabel="Submit"></SubmitButton>
-        </Form>
+            <div> Already have an account? <a href="http://localhost:5173/login" className="underline decoration-sky-500 text-sky-500"> Log in </a></div>
+        </Form>  
+        </div>
     );
 };
 
