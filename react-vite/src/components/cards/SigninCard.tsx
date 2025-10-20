@@ -1,4 +1,4 @@
-import SubmitButton from "../buttons/SubmitButton";
+import LabeledButton from "../buttons/LabeledButton";
 import { Form, Input } from "@heroui/react";
 import { useState } from "react";
 
@@ -33,6 +33,7 @@ const SigninCard = () => {
                 labelPlacement="outside"
                 name="username"
                 placeholder="KingArthur"
+                className="bg-white rounded-md p-1"
                 />
 
                 <Input
@@ -43,6 +44,7 @@ const SigninCard = () => {
                 placeholder="kingarthur@campusquest.com"
                 type="email"
                 variant="bordered"
+                className="bg-white rounded-md p-1"
                 />
 
                 <Input
@@ -52,12 +54,13 @@ const SigninCard = () => {
                 label="Password"
                 labelPlacement="outside"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="************"
                 type="password"
                 value={password}
                 onValueChange={setPassword}
+                className="bg-white rounded-md p-1"
                 />
-                <SubmitButton onClick={onSubmit} ariaLabel="Submit"></SubmitButton> 
+                <LabeledButton onClick={onSubmit} ariaLabel="Submit"></LabeledButton> 
             </div>
             <div> Already have an account? <a href="http://localhost:5173/login" className="underline decoration-sky-500 text-sky-500"> Log in </a></div>
         </Form>  

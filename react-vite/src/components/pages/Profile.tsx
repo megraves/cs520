@@ -1,9 +1,13 @@
-//import LogoutButton from "@buttons/LogoutButton";
+import ProfileCard from "../cards/ProfileCard";
+import ProfileHeader from "../atoms/ProfileHeader";
+import Background from "../atoms/Background";
 
 const Profile = () => {
     return (
-        <></>
-        //<LogoutButton></LogoutButton>
+        <Background className="flex flex-col flex-wrap items-center">
+            <ProfileHeader></ProfileHeader>
+            <ProfileCard></ProfileCard>
+        </Background>
     );
 };
 

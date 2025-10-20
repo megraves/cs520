@@ -1,7 +1,6 @@
 import { HeroUIProvider } from "@heroui/react";
 import { Route, Routes, useHref, useNavigate } from "react-router-dom";
 
-
 import GoMode from "./components/pages/GoMode";
 import WanderMode from "./components/pages/WanderMode";
 import Login from "./components/pages/Login";
@@ -19,7 +18,7 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="home" element={<WanderMode />} /> 
         <Route path="/go-mode/:questId" element={<GoMode />} />
-        <Route path="/profile/:userName" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} /> 
       </Routes> 
     </HeroUIProvider>
   );

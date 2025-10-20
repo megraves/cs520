@@ -6,7 +6,7 @@ type Props = {
     ariaLabel: string
 };
 
-const SubmitButton = ({onClick, ariaLabel}: Props) => {
+export default function LabeledButton({onClick, ariaLabel}: Props) {
     return (
         <Button
             aria-label={ariaLabel}
@@ -15,9 +15,7 @@ const SubmitButton = ({onClick, ariaLabel}: Props) => {
             //onHover={onHover}
             radius="lg"
         >
-            Submit
+            {ariaLabel}
         </Button>
     );
 };
-
-export default SubmitButton;
