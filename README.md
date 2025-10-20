@@ -11,7 +11,16 @@ If there are no events or if the student does not want to attend one, students c
 ** See our figma mock up in the [docs]("https://github.com/megraves/cs520/blob/main/docs") directory
 
 ## Development - React-Vite-Supabase
-To develop our project we will create a React-vite app using typescript. We will have a Supabase database that will handle storage and auth. We will share our files in a git repository. We will use various free libraries to help with UI. Currently, these include tailwind, heroui, font awesome, etc. Our file structure is as follows:
+To develop our project we will create a React-vite app using typescript. We will have a Supabase database that will handle storage and auth. We will share our files in a git repository. We will use various free libraries to help with UI. Currently, these include tailwind, heroui, font awesome, etc. 
+
+### To run the app:
+`cd react-vite`
+
+`npm run dev`
+
+Navigate to http://localhost:5173/
+
+### Our file structure is as follows:
 
 ```sh
 # Project File Structure:
