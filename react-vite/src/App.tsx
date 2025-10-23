@@ -1,3 +1,6 @@
+import { supabase } from "./lib/supabaseClient";  // <-- import supabase client here
+import { useEffect } from "react";
+
 import { HeroUIProvider } from "@heroui/react";
 import { Route, Routes, useHref, useNavigate } from "react-router-dom";
 
@@ -6,6 +9,7 @@ import WanderMode from "./components/pages/WanderMode";
 import Login from "./components/pages/Login";
 import Signin from "./components/pages/Signin";
 import Profile from "./components/pages/Profile";
+
 
 function App() {
   const navigate = useNavigate();
