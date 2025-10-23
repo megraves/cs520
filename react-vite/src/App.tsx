@@ -22,7 +22,6 @@ function App() {
           <Route path="/go-mode/:questId" element={<GoMode />} />
           <Route path="/profile" element={<Profile />} /> 
         </Route>
-
           <Route path="*" element={<Navigate to="/" replace />} />
       </Routes> 
     </HeroUIProvider>
