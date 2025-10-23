@@ -13,7 +13,6 @@ const SigninCard = () => {
     const [submitted, setSubmitted] = useState<string | null>(null);
 
     const onSubmit = async (e: React.FormEvent) => {
-        // TODO: auth??
         e.preventDefault();
         setLoading(true);
         setError(null);
