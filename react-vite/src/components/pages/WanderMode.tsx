@@ -4,7 +4,8 @@ import QuestCard from "../cards/QuestCard";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import LoadingSpinner from "../Loading";
-import CreateEventCard from "../cards/CreateEventCard";
+//import CreateEventCard from "../cards/CreateEventCard";
+import { useNavigate } from "react-router-dom";
 
 type Event = {
   event_id: string;
@@ -22,7 +23,8 @@ type Event = {
 export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
+    //const [showForm, setShowForm] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -46,22 +48,17 @@ export default function HomePage() {
     return (
         <Background>
             <HomeHeader></HomeHeader>
-            {/* Button to start create event */}
-            <div className="flex justify-center mt-6">
+
+            <div className="flex justify-center gap-4 mt-6">
+
+                {/* Enter My Events Page */}
                 <button
-                onClick={() => setShowForm(!showForm)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow"
+                onClick={() => navigate("/my-events")}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
                 >
-                {showForm ? "Cancel" : "Create Event"}
+                My Events
                 </button>
             </div>
-
-            {/* CreateEventCard */}
-            {showForm && (
-                <div className="flex justify-center mt-6">
-                <CreateEventCard onCreated={() => window.location.reload()} />
-                </div>
-            )}
 
             <div className="flex flex-row w-1/2"> 
                 <div className="bg-white rounded-xl w-2/3 h-screen m-20 p-5 flex flex-col gap-5 overflow-y-auto">
