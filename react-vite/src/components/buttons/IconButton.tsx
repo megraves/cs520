@@ -10,8 +10,9 @@ export default function IconButton({ icon, onAction }: Props) {
       <Button
         isIconOnly
         radius="full"
-        color="secondary"
+        color="primary"
         onPress={onAction}
+        variant="solid"
       >
         <i className={`${icon}`}></i>
       </Button>

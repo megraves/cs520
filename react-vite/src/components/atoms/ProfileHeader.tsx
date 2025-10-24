@@ -1,7 +1,7 @@
 import IconButton from "../buttons/IconButton";
 import LabeledButton from "../buttons/LabeledButton";
 import { useNavigate } from "react-router-dom";
-//import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 
 type Props = {
   className?: string;
@@ -14,19 +14,19 @@ export default function ProfileHeader({ className }: Props) {
       navigate('/home');
   };
 
-  const logout = () => {
-    //TODO:
-    //end auth session
-    // navigate to login page
-    // const {error} = await supabase.auth.signOut();
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
 
-    // if (error != null) {
-    //   navigate('/login');
-
-    // } else {
-    //   console.log("trouble logging out, try again");
-
-    // }
+      if (!error) {
+        console.log("User signed out successfully.")
+        navigate('/login');
+      } else {
+        console.error("Trouble logging out, try again");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
