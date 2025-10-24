@@ -1,16 +1,21 @@
 import LabeledButton from "../buttons/LabeledButton";
 import * as classes from "./card-classes";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     title: string,
     location: string,
     isVirtual?: boolean,
+    questId: string,
 }
 
-export default function QuestCard({title, location}: Props) {
+export default function QuestCard({title, location, questId}: Props) {
+
+    const navigate = useNavigate();
 
     const startQuest = () => {
-        //TODO:
+        console.log("Go! clicked", questId);
+        navigate(`/go-mode/${questId}`);
     }
 
     return(
