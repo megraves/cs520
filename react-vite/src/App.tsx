@@ -7,6 +7,7 @@ import WanderMode from "./components/pages/WanderMode";
 import Login from "./components/pages/Login";
 import Signin from "./components/pages/Signin";
 import Profile from "./components/pages/Profile";
+import MyEventsPage from "./components/pages/MyEventsPage";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="home" element={<WanderMode />} /> 
           <Route path="/go-mode/:questId" element={<GoMode />} />
           <Route path="/profile" element={<Profile />} /> 
+          <Route path="/my-events" element={<MyEventsPage />} />
         </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
       </Routes> 
