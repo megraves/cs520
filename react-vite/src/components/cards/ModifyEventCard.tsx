@@ -2,13 +2,15 @@ import LabeledButton from "../buttons/LabeledButton";
 import { Form, Input, Textarea } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import LocationPicker from "../cards/LocationPicker";
 
 type Props = {
   mode?: "create" | "edit";
-  existingEvent?: any;
+  existingEvent?: any; // Replace 'any' with your EventRow type
   onSuccess?: () => void;
 };
-//  24h to am/pm
+
+// Helpers: convert between 24h and am/pm
 const toAmPm = (hour: number, minute: number): string => {
   const suffix = hour >= 12 ? "pm" : "am";
   const displayHour = ((hour + 11) % 12 + 1);
@@ -37,6 +39,7 @@ const fromAmPm = (timeStr: string): [string, string] => {
   return [hour.toString().padStart(2, "0"), minute.toString().padStart(2, "0")];
 };
 
+// Human-readable "date + time range + tz" text
 const formatDateTimeText = (date: string, startTime: string, endTime: string): string => {
   if (!date || !startTime || !endTime) return "";
 
@@ -62,19 +65,28 @@ const formatDateTimeText = (date: string, startTime: string, endTime: string): s
 };
 
 const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) => {
+  // Basic fields
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
+
+  // UX state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Time fields (HH / MM) in 24h format
   const [startHour, setStartHour] = useState("");
   const [startMinute, setStartMinute] = useState("");
   const [endHour, setEndHour] = useState("");
   const [endMinute, setEndMinute] = useState("");
 
-  // Auto fill
+  // Location feature: coordinates saved to DB
+  const [eventLat, setEventLat] = useState<number | null>(null);
+  const [eventLng, setEventLng] = useState<number | null>(null);
+
+  // Pre-fill when editing
   useEffect(() => {
     if (mode === "edit" && existingEvent) {
       setTitle(existingEvent.title || "");
@@ -86,6 +98,9 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
       const [sh, sm] = fromAmPm(existingEvent.start_time || "");
       const [eh, em] = fromAmPm(existingEvent.end_time || "");
 
+      setEventLat(existingEvent.event_lat ?? null);
+      setEventLng(existingEvent.event_lng ?? null);
+
       setStartHour(sh ?? "");
       setStartMinute(sm ?? "");
       setEndHour(eh ?? "");
@@ -93,59 +108,82 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
     }
   }, [mode, existingEvent]);
 
+  // Validation helpers
   const validateField = {
-  title: (v: string) => (!v ? "Title is required." : null),
-  location: (v: string) => (!v ? "Location is required." : null),
-  date: (v: string) => (!v ? "Please choose a date." : null),
+    title: (v: string) => (!v ? "Title is required." : null),
+    location: (v: string) => (!v ? "Location is required." : null),
+    date: (v: string) => (!v ? "Please choose a date." : null),
 
-  // Validate time（4input: startHour, startMinute, endHour, endMinute）
-  time: (sh: string, sm: string, eh: string, em: string) => {
-        if (!sh || !sm || !eh || !em) {
+    // Validate time（4input: startHour, startMinute, endHour, endMinute）
+    time: (sh: string, sm: string, eh: string, em: string) => {
+      if (!sh || !sm || !eh || !em) {
         return "Please fill in all time fields.";
-        }
+      }
 
-        // string to int
-        const h1 = parseInt(sh, 10), m1 = parseInt(sm, 10);
-        const h2 = parseInt(eh, 10), m2 = parseInt(em, 10);
+      // string to int
+      const h1 = parseInt(sh, 10), m1 = parseInt(sm, 10);
+      const h2 = parseInt(eh, 10), m2 = parseInt(em, 10);
 
-        // not int
-        if ([h1, m1, h2, m2].some(isNaN)) {
+      // not int
+      if ([h1, m1, h2, m2].some(isNaN)) {
         return "Time must contain only numbers.";
-        }
+      }
 
-        // range valid
-        if (h1 < 0 || h1 > 23 || h2 < 0 || h2 > 23 || m1 < 0 || m1 > 59 || m2 < 0 || m2 > 59) {
+      // range valid
+      if (h1 < 0 || h1 > 23 || h2 < 0 || h2 > 23 || m1 < 0 || m1 > 59 || m2 < 0 || m2 > 59) {
         return "Enter valid 24-hour time (00–23 for hours, 00–59 for minutes).";
-        }
+      }
 
-        // order valid
-        if (h1 > h2 || (h1 === h2 && m1 >= m2)) {
+      // order valid
+      if (h1 > h2 || (h1 === h2 && m1 >= m2)) {
         return "End time must be later than start time.";
-        }
+      }
 
-        return null;
+      return null;
     },
-    };
+  };
 
+  // ---- Derived validation state for rendering (used to disable the submit button)
+  const titleError = validateField.title(title);
+  const locationError = validateField.location(location);
+  const dateError = validateField.date(date);
+  const timeError = validateField.time(startHour, startMinute, endHour, endMinute);
+  // Location feature: require valid coordinates chosen on the map
+  const coordsError =
+    eventLat == null || eventLng == null ? "Please pick a valid location on the map." : null;
+
+  // If any errors are present, the button should be disabled
+  const canSubmit =
+    !loading &&
+    !titleError &&
+    !locationError &&
+    !dateError &&
+    !timeError &&
+    !coordsError;
+
+  // Submit handler re-validates to be safe, then inserts/updates DB
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const timeError = validateField.time(startHour, startMinute, endHour, endMinute);
-    const titleError = validateField.title(title);
-    const locationError = validateField.location(location);
-    const dateError = validateField.date(date);
+    // Re-check at submit time in case state changed
+    const timeErrNow = validateField.time(startHour, startMinute, endHour, endMinute);
+    const titleErrNow = validateField.title(title);
+    const locationErrNow = validateField.location(location);
+    const dateErrNow = validateField.date(date);
+    const coordsErrNow =
+      eventLat == null || eventLng == null ? "Please pick a valid location on the map." : null;
 
-    if (timeError || titleError || locationError || dateError) {
-      setError(timeError || titleError || locationError || dateError);
+    if (timeErrNow || titleErrNow || locationErrNow || dateErrNow || coordsErrNow) {
+      setError(timeErrNow || titleErrNow || locationErrNow || dateErrNow || coordsErrNow);
       setLoading(false);
       return;
     }
 
     try {
       const startTime = toAmPm(parseInt(startHour, 10), parseInt(startMinute, 10));
-      const endTime   = toAmPm(parseInt(endHour, 10), parseInt(endMinute, 10));
+      const endTime = toAmPm(parseInt(endHour, 10), parseInt(endMinute, 10));
       const dateTimeText = formatDateTimeText(date, startTime, endTime);
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -163,6 +201,8 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
           image_url: imageUrl || null,
           description: description || null,
           creator: user.id,
+          event_lat: eventLat,
+          event_lng: eventLng,
         };
         const { error } = await supabase.from("daily_event_calendar").insert([newEvent]);
         if (error) throw error;
@@ -179,6 +219,8 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
             image_url: imageUrl || null,
             description: description || null,
             date_time_text: dateTimeText,
+            event_lat: eventLat,
+            event_lng: eventLng,
           })
           .eq("event_id", existingEvent.event_id)
           .eq("creator", user.id);
@@ -200,99 +242,115 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
         <h1 className="text-xl font-semibold">
           {mode === "edit" ? "Edit Event" : "Create Event"}
         </h1>
-
+        <label htmlFor="Title" className="block text-sm font-medium mb-1">Title</label>
         <Input
           isRequired
-          label="Title"
+          //label="Title"
           value={title}
           onValueChange={setTitle}
           isInvalid={!!validateField.title(title)}
           errorMessage={validateField.title(title)}
           classNames={{
-              errorMessage: "text-xs mt-0.5 text-red-500", 
-              inputWrapper: "border-red-500",             
+            errorMessage: "text-xs mt-0.5 text-red-500",
+            inputWrapper: "border-red-500",
           }}
         />
-
+        <label htmlFor="Location" className="block text-sm font-medium mb-1">Location</label>
         <Input
           isRequired
-          label="Location"
+          //label="Location"
           value={location}
-          onValueChange={setLocation}
+          onValueChange={(v) => {
+            setLocation(v);
+            // --- location feature: any manual change invalidates the previous coordinates
+            setEventLat(null);
+            setEventLng(null);
+          }}
           isInvalid={!!validateField.location(location)}
           errorMessage={validateField.location(location)}
           classNames={{
-              errorMessage: "text-xs mt-0.5 text-red-500", 
-              inputWrapper: "border-red-500",             
+            errorMessage: "text-xs mt-0.5 text-red-500",
+            inputWrapper: "border-red-500",
           }}
         />
-
+        <LocationPicker
+          externalQuery={location}
+          value={
+            eventLat != null && eventLng != null
+              ? { lat: eventLat, lng: eventLng, label: location } // Put what's in the outside location in the search chart
+              : null
+          }
+          onChange={(v) => {
+            setEventLat(v.lat);
+            setEventLng(v.lng);
+          }}
+          restrictToUMass={true}
+        />
+        <label htmlFor="Date" className="block text-sm font-medium mb-1">Date</label>
         <Input
           isRequired
           type="date"
-          label="Date"
           value={date}
           onValueChange={setDate}
           isInvalid={!!validateField.date(date)}
           errorMessage={validateField.date(date)}
           classNames={{
-              errorMessage: "text-xs mt-0.5 text-red-500", 
-              inputWrapper: "border-red-500",             
+            errorMessage: "text-xs mt-0.5 text-red-500",
           }}
         />
 
         {/* === Start & End Time === */}
         <div className="flex flex-col gap-3">
-        <label className="text-sm font-medium">Start Time</label>
-        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Start Time</label>
+          <div className="flex items-center gap-2">
             <Input
-            type="text"
-            inputMode="numeric"
-            maxLength={2}
-            placeholder="HH"
-            className="w-16"
-            value={startHour}
-            onValueChange={(v) => setStartHour(v.replace(/\D/g, ""))}
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="HH"
+              className="w-16"
+              value={startHour}
+              onValueChange={(v) => setStartHour(v.replace(/\D/g, ""))}
             />
             <span className="text-lg font-bold">:</span>
             <Input
-            type="text"
-            inputMode="numeric"
-            maxLength={2}
-            placeholder="MM"
-            className="w-16"
-            value={startMinute}
-            onValueChange={(v) => setStartMinute(v.replace(/\D/g, ""))}
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="MM"
+              className="w-16"
+              value={startMinute}
+              onValueChange={(v) => setStartMinute(v.replace(/\D/g, ""))}
             />
-        </div>
+          </div>
 
-        <label className="text-sm font-medium mt-3">End Time</label>
-        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium mt-3">End Time</label>
+          <div className="flex items-center gap-2">
             <Input
-            type="text"
-            inputMode="numeric"
-            maxLength={2}
-            placeholder="HH"
-            className="w-16"
-            value={endHour}
-            onValueChange={(v) => setEndHour(v.replace(/\D/g, ""))}
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="HH"
+              className="w-16"
+              value={endHour}
+              onValueChange={(v) => setEndHour(v.replace(/\D/g, ""))}
             />
             <span className="text-lg font-bold">:</span>
             <Input
-            type="text"
-            inputMode="numeric"
-            maxLength={2}
-            placeholder="MM"
-            className="w-16"
-            value={endMinute}
-            onValueChange={(v) => setEndMinute(v.replace(/\D/g, ""))}
+              type="text"
+              inputMode="numeric"
+              maxLength={2}
+              placeholder="MM"
+              className="w-16"
+              value={endMinute}
+              onValueChange={(v) => setEndMinute(v.replace(/\D/g, ""))}
             />
-        </div>
-        {validateField.time(startHour, startMinute, endHour, endMinute) && (
+          </div>
+          {validateField.time(startHour, startMinute, endHour, endMinute) && (
             <p className="text-red-600 text-sm mt-1">
-            {validateField.time(startHour, startMinute, endHour, endMinute)}
+              {validateField.time(startHour, startMinute, endHour, endMinute)}
             </p>
-        )}
+          )}
         </div>
 
         <Input label="Image URL" value={imageUrl} onValueChange={setImageUrl} />
@@ -305,6 +363,7 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
           ariaLabel="Submit"
           label={loading ? "Saving..." : mode === "edit" ? "Save Changes" : "Create Event"}
           loading={loading}
+          disabled={!canSubmit}
         />
       </Form>
     </div>
