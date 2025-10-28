@@ -1,13 +1,15 @@
 import { HeroUIProvider } from "@heroui/react";
 import { Route, Routes, useHref, useNavigate, Navigate} from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Suspense, lazy } from "react";
 
-import GoMode from "./components/pages/GoMode";
 import WanderMode from "./components/pages/WanderMode";
 import Login from "./components/pages/Login";
 import Signin from "./components/pages/Signin";
 import Profile from "./components/pages/Profile";
 import MyEventsPage from "./components/pages/MyEventsPage";
+//import GoMode from "./components/pages/GoMode";
+const GoMode = lazy(() => import("./components/pages/GoMode"));
 
 
 function App() {
