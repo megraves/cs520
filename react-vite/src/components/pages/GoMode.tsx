@@ -25,10 +25,12 @@ type Event = {
   // Location fields persisted in DB (new)
   event_lat?: number | null;
   event_lng?: number | null;
+
+  checkin_count?: number | null;
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
-const CHECKIN_RADIUS_M = 100;
+const CHECKIN_RADIUS_M = 10000;
 
 // Haversine helper to compute straight-line distance in meters between two lat/lng points
 function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
@@ -70,10 +72,15 @@ const GoMode = () => {
   const { questId } = useParams<{ questId: string }>();
   const [quest, setQuest] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // --- Location feature: event coordinates resolved for the map (from DB or geocoding)
   const [eventPos, setEventPos] = useState<{ lat: number; lng: number } | null>(null);
   const [geoErr, setGeoErr] = useState<string | null>(null);
+
+  // --- Check-in state
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+  const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
+  const [checkinCount, setCheckinCount] = useState<number | null>(null);
 
   // --- Location feature: real-time user geolocation (watchPosition)
   const { pos: userPos, error: geoError, permission, isSecure, requestOnce } = useGeolocation(true);
@@ -85,15 +92,19 @@ const GoMode = () => {
       if (!questId) return;
 
       const { data, error } = await supabase
-        .from("daily_event_calendar")
+        //.from("daily_event_calendar")
+        .from("daily_event_calendar_with_stats")
         .select("*")
         .eq("event_id", questId)
         .single();
 
       if (error) {
         console.error("Error fetching quest:", error);
+        setLoading(false);
+        return;
       } else {
         setQuest(data);
+        setCheckinCount(data.checkin_count ?? 0); // 初始化打卡人数
       }
       setLoading(false);
     };
@@ -146,9 +157,53 @@ const GoMode = () => {
   const canCheckIn = !!distanceM && distanceM <= CHECKIN_RADIUS_M;
 
   // --- Location feature: where check-in will eventually persist to Supabase (demo for now)
+  // const handleCheckIn = async () => {
+  //   alert("✅ Checked in! (demo)\nWe will persist this in Supabase in the next step.");
+  // };
   const handleCheckIn = async () => {
-    alert("✅ Checked in! (demo)\nWe will persist this in Supabase in the next step.");
+    // Check again
+    if (!canCheckIn) return;
+    if (!quest) return;
+
+    setIsCheckingIn(true);
+    setCheckinMessage(null);
+
+    // 1. Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.error("Auth error:", authError);
+      setCheckinMessage("⚠️ Please log in before check in.");
+      setIsCheckingIn(false);
+      return;
+    }
+
+    // 2. Add record of checkin
+    const { error } = await supabase.from("event_checkins").insert({
+      event_id: quest.event_id, // Your event_id is text
+      user_id: user.id,
+      // points: 10, // Set points yourself
+    });
+
+    if (error) {
+      // Same people, same event, single check in
+      if ((error as any).code === "23505") {
+        setCheckinMessage("✅ You have checked in before!");
+      } else {
+        console.error("Check-in failed:", error);
+        setCheckinMessage("❌ Checkin failed. Please try again later.");
+      }
+    } else {
+      setCheckinMessage("✅ Checkin success. You have earned new points!");
+      // TODO: Trigger an update of checkin numbers.
+    }
+
+    setIsCheckingIn(false);
   };
+
 
 
   if (loading) return <LoadingSpinner></LoadingSpinner>;
@@ -156,51 +211,63 @@ const GoMode = () => {
 
   return (
     <Background>
-        <GoHeader></GoHeader>
-        <div className="flex justify-center mt-10">
-            <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-6 shadow-md">
-            
-            
-            <h1 className="text-2xl font-bold">{quest.title}</h1>
-            <p className="text-gray-600">{quest.location}</p>
-            <p className="text-gray-500">{quest.date_time_text}</p>
+      <GoHeader></GoHeader>
+      <div className="flex justify-center mt-10">
+        <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-6 shadow-md">
 
-            <CheckinMapCard
-              eventPos={eventPos}
-              userPos={userPos ?? null}
-              radiusM={CHECKIN_RADIUS_M}
-              distanceM={distanceM}
-              canCheckIn={canCheckIn}
-              onCheckIn={handleCheckIn}
-              geoError={geoErr}
-              permission={permission}
-              isSecure={isSecure}
-              onRetryGeolocation={requestOnce}
-              height="360px"
-            />
 
-            {quest.image_url && (
-                <img src={quest.image_url} alt={quest.title} className="my-4 rounded" />
-            )}
-            {quest.url && (
-                <a
-                href={quest.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline mt-3 inline-block"
-                >
-                Go to Event Website
-                </a>
-            )}
+          <h1 className="text-2xl font-bold">{quest.title}</h1>
+          <p className="text-gray-600">{quest.location}</p>
+          <p className="text-gray-500">{quest.date_time_text}</p>
 
-            <button
-                onClick={() => navigate(-1)}
-                className="mt-5 px-4 py-2 bg-gray-200 rounded"
+          {/* 完成打卡人数 */}
+          <p className="text-sm text-gray-700">
+            {checkinCount != null
+              ? `Participants: ${checkinCount} `
+              : "Loading paticipant counts…"}
+          </p>
+
+
+          <CheckinMapCard
+            eventPos={eventPos}
+            userPos={userPos ?? null}
+            radiusM={CHECKIN_RADIUS_M}
+            distanceM={distanceM}
+            canCheckIn={canCheckIn && !isCheckingIn}
+            onCheckIn={handleCheckIn}
+            geoError={geoErr}
+            permission={permission}
+            isSecure={isSecure}
+            onRetryGeolocation={requestOnce}
+            height="360px"
+          />
+          {checkinMessage && (
+            <p className="text-sm text-gray-700 mt-1">
+              {checkinMessage}
+            </p>
+          )}
+          {quest.image_url && (
+            <img src={quest.image_url} alt={quest.title} className="my-4 rounded" />
+          )}
+          {quest.url && (
+            <a
+              href={quest.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline mt-3 inline-block"
             >
-                Back
-            </button>
+              Go to Event Website
+            </a>
+          )}
+
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-5 px-4 py-2 bg-gray-200 rounded"
+          >
+            Back
+          </button>
         </div>
-    </div>
+      </div>
     </Background>
   );
 };
