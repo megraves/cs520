@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 from supabase import create_client, Client
 import hashlib
 from utils import parse_date_time_text
@@ -9,23 +9,9 @@ URL = "https://events.umass.edu/calendar"
 response = requests.get(URL)
 soup = BeautifulSoup(response.text, "html.parser")
 
-today_month_day = datetime.now().strftime("%b %d")
 events = []
-
-cards = soup.find_all(
-    "div", class_=lambda x: x and "em-card" in x and "em-event-" in x
-)
-
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-
-URL = "https://events.umass.edu/calendar"
-response = requests.get(URL)
-soup = BeautifulSoup(response.text, "html.parser")
-
-today_month_day = datetime.now().strftime("%b %d")
-events = []
+today = datetime.now()
+two_days_later = today + timedelta(days=2)
 
 cards = soup.find_all(
     "div", class_=lambda x: x and "em-card" in x and "em-event-" in x
@@ -52,16 +38,28 @@ for card in cards:
 
     location_elem = text_elem.select(".em-card_event-text a")
     location = location_elem[-1].get_text(strip=True) if location_elem else None
+    
+    # Assuming `date` is a string like "October 23, 2025" or "Oct 23"
+    if date:
+        try:
+            # Try parsing it with month/day/year if available
+            parsed_date = datetime.strptime(date, "%b %d, %Y")
+        except ValueError:
+            # Fallback: if year missing, assume current year
+            parsed_date = datetime.strptime(date + f", {datetime.now().year}", "%b %d, %Y")
+        
+        eventDate = parsed_date.strftime("%Y-%m-%d")
+    else:
+        eventDate = None
 
-    if date_time_text:
-        if today_month_day in date_time_text:
-            print(today_month_day)
+    if today.date() <= parsed_date.date() <= two_days_later.date():
             events.append({
                 "title": title,
                 "url": url,
                 "start_time": start_time,
                 "end_time": end_time,
                 "date": date,
+                "event_date": eventDate,
                 "date_time_text": date_time_text,
                 "location": location,
                 "image_url": image_url
@@ -85,6 +83,6 @@ for event in events:
 
 if events:
     supabase.table("daily_event_calendar").upsert(events, on_conflict="event_id").execute()
-    print(f"Upserted {len(events)} events for {today_month_day}.")
+    print(f"Upserted {len(events)} events.")
 else:
     print("No events for today.")
