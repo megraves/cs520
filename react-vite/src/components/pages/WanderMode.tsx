@@ -6,6 +6,8 @@ import { supabase } from "../../lib/supabaseClient";
 import LoadingSpinner from "../Loading";
 //import CreateEventCard from "../cards/CreateEventCard";
 import { useNavigate } from "react-router-dom";
+import InteractiveEventMapCard, { type EventWithCoords } from "../cards/InteractiveEventMapCard";
+import { getEventStatus } from "../../utils/eventTime";
 
 type Event = {
   event_id: string;
@@ -18,6 +20,9 @@ type Event = {
   date?: string;
   image_url?: string;
   creator?: string | null;
+
+  event_lat?: number | null;
+  event_lng?: number | null;
 };
 
 export default function HomePage() {
@@ -45,6 +50,25 @@ export default function HomePage() {
     }, []);
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
+    // 只取有经纬度的事件，映射成 EventWithCoords
+    const eventsWithCoords: EventWithCoords[] = events
+        .filter((e) => e.event_lat != null && e.event_lng != null)
+        .map((e) => {
+        const now = new Date();
+        const status = getEventStatus(e.date, e.start_time, e.end_time, now);
+
+        return {
+        id: e.event_id,
+        title: e.title,
+        position: {
+            lat: e.event_lat as number,
+            lng: e.event_lng as number,
+        },
+        timeText: e.date_time_text, 
+        status,                     
+        };
+        }
+    );
     return (
         <Background>
             <HomeHeader></HomeHeader>
@@ -60,23 +84,30 @@ export default function HomePage() {
                 </button>
             </div>
 
-            <div className="flex flex-row w-1/2"> 
-                <div className="bg-white rounded-xl w-2/3 h-screen m-20 p-5 flex flex-col gap-5 overflow-y-auto">
-                    {events.length === 0 ? (
-                        <p>No events found.</p>
-                    ) : (
-                        events.map((event) => (
-                        <QuestCard
-                            key={event.event_id}
-                            questId={event.event_id}
-                            title={event.title}
-                            location={event.location}
-                            creator={event.creator ?? null}
-                        />
-                        ))
-                    )}
-                </div>
-            </div>     
+            {/* events + interactive map */}
+            <div className="flex flex-row w-full px-20 mt-6 gap-6 h-[70vh]">
+            {/* left: events */}
+            <div className="bg-white rounded-xl basis-2/5 p-5 flex flex-col gap-5 overflow-y-auto shadow">
+                {events.length === 0 ? (
+                <p>No events found.</p>
+                ) : (
+                events.map((event) => (
+                    <QuestCard
+                    key={event.event_id}
+                    questId={event.event_id}
+                    title={event.title}
+                    location={event.location}
+                    creator={event.creator ?? null}
+                    />
+                ))
+                )}
+            </div>
+
+            {/* right: map */}
+            <div className="basis-3/5 h-full">
+                <InteractiveEventMapCard events={eventsWithCoords} />
+            </div>
+            </div>
         </Background>
     );
 };

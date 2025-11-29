@@ -9,7 +9,7 @@
 //  - Keep this component “dumb”: all business logic (distance, check-in) lives outside.
 
 import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, Tooltip, CircleMarker, } from "react-leaflet";
 import L, { type LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -45,6 +45,15 @@ const eventIcon = L.divIcon({
     tooltipAnchor: [16, -28],
 });
 
+type EventMarker = {
+    id: string;
+    title: string;
+    lat: number;
+    lng: number;
+    status?: "upcoming" | "live" | "past" | "holy_grail";
+    timeText?: string;
+};
+
 // --- Public props -----------------------------------------------------------
 type Props = {
     // Initial map center (used before FitBounds runs)
@@ -59,6 +68,9 @@ type Props = {
 
     // Map container height (CSS length)
     height?: string;
+
+    // Multiple events
+    eventMarkers?: EventMarker[];
 };
 
 // --- Smart viewport fitting helper -----------------------------------------
@@ -86,6 +98,7 @@ export default function MapView({
     eventPos,
     eventRadius = 100,
     height = "320px",
+    eventMarkers,
 }: Props) {
     return (
         <div style={{ height }}>
@@ -110,6 +123,78 @@ export default function MapView({
                         <Popup>You are here</Popup>
                     </Marker>
                 )}
+
+                {/* New: Mutiple events for interactive event map */}
+                {eventMarkers &&
+                    eventMarkers.map((e) => {
+                        const statusLabel =
+                            e.status === "live"
+                                ? "Live now"
+                                : e.status === "past"
+                                    ? "Past event"
+                                    : e.status === "holy_grail"
+                                        ? "Holy Grail"
+                                        : "Upcoming";
+
+                        let statusColorClasses = "bg-blue-100 text-blue-700"; // 默认当作 upcoming
+
+                        let markerColor = "#3b82f6";     // blue-500
+                        let markerFillColor = "#bfdbfe"; // blue-200
+
+                        if (e.status === "live") {
+                            statusColorClasses = "bg-yellow-100 text-yellow-800";
+                            markerColor = "#eab308";       // yellow-500
+                            markerFillColor = "#fef9c3";   // yellow-100
+                        } else if (e.status === "past") {
+                            statusColorClasses = "bg-gray-200 text-gray-700";
+                            markerColor = "#6b7280";       // gray-500
+                            markerFillColor = "#e5e7eb";   // gray-200
+                        } else if (e.status === "holy_grail") {
+                            statusColorClasses = "bg-amber-100 text-amber-800";
+                            markerColor = "#f59e0b";       // amber-500
+                            markerFillColor = "#fef3c7";   // amber-100
+                        }
+
+
+                        return (
+                            <CircleMarker
+                                key={e.id}
+                                center={[e.lat, e.lng]}
+                                radius={8}
+                                pathOptions={{
+                                    color: markerColor,
+                                    fillColor: markerFillColor,
+                                    fillOpacity: 0.9,
+                                    weight: 2,
+                                }}
+                            >
+                                <Tooltip
+                                    direction="top"
+                                    offset={[0, -10]}
+                                    opacity={0.95}
+                                    sticky
+                                >
+                                    <div className="text-xs sm:text-sm">
+                                        <div className="font-semibold">{e.title}</div>
+                                        {e.timeText && (
+                                            <div className="text-gray-700">{e.timeText}</div>
+                                        )}
+                                        <div className="mt-1">
+                                            <span
+                                                className={
+                                                    "inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium " +
+                                                    statusColorClasses
+                                                }
+                                            >
+                                                {statusLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Tooltip>
+                            </CircleMarker>
+                        );
+                    })
+                }
             </MapContainer>
         </div>
     );
