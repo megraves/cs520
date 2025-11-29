@@ -185,6 +185,7 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
       const startTime = toAmPm(parseInt(startHour, 10), parseInt(startMinute, 10));
       const endTime = toAmPm(parseInt(endHour, 10), parseInt(endMinute, 10));
       const dateTimeText = formatDateTimeText(date, startTime, endTime);
+      const eventDate = date ? new Date(date).toISOString().split("T")[0] : null;
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not logged in");
@@ -196,6 +197,7 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
           location,
           date_time_text: dateTimeText,
           date,
+          event_date: eventDate,
           start_time: startTime,
           end_time: endTime,
           image_url: imageUrl || null,
@@ -214,6 +216,7 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
             title,
             location,
             date,
+            event_date: eventDate,
             start_time: startTime,
             end_time: endTime,
             image_url: imageUrl || null,
