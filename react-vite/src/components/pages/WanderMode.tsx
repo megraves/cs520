@@ -38,7 +38,7 @@ export default function HomePage() {
             const { data, error } = await supabase
                 .from("daily_event_calendar")
                 .select("*")
-                .gte('event_date', today) // only display todays & future events (even if today's events have passed their time)
+                .eq('event_date', today) // only display todays events (even if today's events have passed their time)
                 .order('event_date', { ascending: true })
                 .order("date_time_text", { ascending: true });
 
