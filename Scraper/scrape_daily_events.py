@@ -11,7 +11,6 @@ soup = BeautifulSoup(response.text, "html.parser")
 
 events = []
 today = datetime.now()
-two_days_later = today + timedelta(days=2)
 
 cards = soup.find_all(
     "div", class_=lambda x: x and "em-card" in x and "em-event-" in x
@@ -40,19 +39,22 @@ for card in cards:
     location = location_elem[-1].get_text(strip=True) if location_elem else None
     
     # Assuming `date` is a string like "October 23, 2025" or "Oct 23"
+    parsed_date = None
     if date:
         try:
             # Try parsing it with month/day/year if available
             parsed_date = datetime.strptime(date, "%b %d, %Y")
         except ValueError:
             # Fallback: if year missing, assume current year
-            parsed_date = datetime.strptime(date + f", {datetime.now().year}", "%b %d, %Y")
-        
+            try: 
+                parsed_date = datetime.strptime(date + f", {datetime.now().year}", "%b %d, %Y")
+            except:
+                parsed_date = None
         eventDate = parsed_date.strftime("%Y-%m-%d")
     else:
         eventDate = None
 
-    if today.date() <= parsed_date.date() <= two_days_later.date():
+    if parsed_date and today.date() == parsed_date.date():
             events.append({
                 "title": title,
                 "url": url,
