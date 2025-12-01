@@ -8,6 +8,7 @@ import Login from "./components/pages/Login";
 import Signin from "./components/pages/Signin";
 import Profile from "./components/pages/Profile";
 import MyEventsPage from "./components/pages/MyEventsPage";
+import ResetPasswordPage from "./components/pages/ResetPassword";
 //import GoMode from "./components/pages/GoMode";
 const GoMode = lazy(() => import("./components/pages/GoMode"));
 
@@ -20,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Signin/>}/>
         <Route path="login" element={<Login />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute/>}>
           <Route path="home" element={<WanderMode />} /> 
           <Route path="/go-mode/:questId" element={<GoMode />} />
