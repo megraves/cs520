@@ -31,11 +31,15 @@ export default function HomePage() {
     //const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
+    const today = new Date().toISOString().split('T')[0];
+
     useEffect(() => {
         const fetchEvents = async () => {
             const { data, error } = await supabase
                 .from("daily_event_calendar")
                 .select("*")
+                .eq('event_date', today) // only display todays events (even if today's events have passed their time)
+                .order('event_date', { ascending: true })
                 .order("date_time_text", { ascending: true });
 
             if (error) {

@@ -17,7 +17,7 @@ const LoginCard = () => {
         setLoading(true);
         setError(null);
 
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
@@ -28,9 +28,29 @@ const LoginCard = () => {
             console.error(authError);
             setError(authError);
             setLoading(false);
-        } else {
-            navigate("/home");
+            return;
         }
+
+        const user = authData.user;
+        if (!user) {
+            setError(new Error("No user returned from login."));
+            setLoading(false);
+            return;
+        }
+
+        const { error: historyError } = await supabase
+        .from("user_sign_in_history")
+        .insert([
+          { id: user.id, email: user.email, sign_in_at: new Date().toISOString() }
+        ]);
+
+        if (historyError) {
+            console.error("Failed to log sign-in:", historyError);
+            // Optional: you could show a warning, but do not block login
+        }
+        
+        navigate("/home");
+
     };
 
     const validatePassword = (pass: string) => {

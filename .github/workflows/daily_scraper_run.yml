@@ -13,6 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug by Listing repository structure
+        run: ls -R .
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -23,5 +26,5 @@ jobs:
           python -m pip install --upgrade pip
 
       - name: Run Python script
-        working-directory: ./cs520/Scraper
+        working-directory: ./Scraper
         run: python scrape_daily_events.py
