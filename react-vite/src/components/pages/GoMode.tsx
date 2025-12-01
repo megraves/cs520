@@ -220,7 +220,7 @@ const GoMode = () => {
           <p className="text-gray-600">{quest.location}</p>
           <p className="text-gray-500">{quest.date_time_text}</p>
 
-          {/* 完成打卡人数 */}
+          {/* Number of people already checked in */}
           <p className="text-sm text-gray-700">
             {checkinCount != null
               ? `Participants: ${checkinCount} `
