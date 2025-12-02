@@ -98,7 +98,7 @@ export default function ProfileCard() {
         <div className="bg-white rounded-lg shadow ml-30 mr-30 mb-30 p-15 w-4/5 h-screen justify-center">
             <div className="flex flex-row items-center flex-wrap justify-center gap-20">
                 <ResponsiveCard 
-                    title="Username" 
+                    title={"UserName"} 
                     className="flex flex-row justify-center p-5" 
                     button={
                         <IconButton
