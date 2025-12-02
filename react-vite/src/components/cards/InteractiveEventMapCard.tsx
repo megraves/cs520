@@ -17,6 +17,7 @@ export type EventWithCoords = {
     position: LatLng;
     status?: "upcoming" | "live" | "past" | "holy_grail";
     timeText?: string;
+    checkinCount?: number | null;
 };
 
 /**
@@ -87,6 +88,7 @@ export default function InteractiveEventMapCard({
                     lng: e.position.lng,
                     status: e.status,
                     timeText: e.timeText,
+                    checkinCount: e.checkinCount,
                 }))}
                 height={height}
             />

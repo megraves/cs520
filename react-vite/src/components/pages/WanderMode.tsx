@@ -23,6 +23,8 @@ type Event = {
 
   event_lat?: number | null;
   event_lng?: number | null;
+
+  checkin_count?: number | null; 
 };
 
 export default function HomePage() {
@@ -36,7 +38,7 @@ export default function HomePage() {
     useEffect(() => {
         const fetchEvents = async () => {
             const { data, error } = await supabase
-                .from("daily_event_calendar")
+                .from("daily_event_calendar_with_stats")
                 .select("*")
                 .eq('event_date', today) // only display todays events (even if today's events have passed their time)
                 .order('event_date', { ascending: true })
@@ -54,7 +56,7 @@ export default function HomePage() {
     }, []);
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
-    // 只取有经纬度的事件，映射成 EventWithCoords
+    // Get events that have event_lat&event_lng EventWithCoords
     const eventsWithCoords: EventWithCoords[] = events
         .filter((e) => e.event_lat != null && e.event_lng != null)
         .map((e) => {
@@ -69,7 +71,8 @@ export default function HomePage() {
             lng: e.event_lng as number,
         },
         timeText: e.date_time_text, 
-        status,                     
+        status,  
+        checkinCount: e.checkin_count ?? 0,                   
         };
         }
     );

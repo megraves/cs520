@@ -52,6 +52,7 @@ type EventMarker = {
     lng: number;
     status?: "upcoming" | "live" | "past" | "holy_grail";
     timeText?: string;
+    checkinCount?: number | null;
 };
 
 // --- Public props -----------------------------------------------------------
@@ -179,6 +180,9 @@ export default function MapView({
                                         {e.timeText && (
                                             <div className="text-gray-700">{e.timeText}</div>
                                         )}
+                                        <div>
+                                            {e.checkinCount ?? 0} people checked in
+                                        </div>
                                         <div className="mt-1">
                                             <span
                                                 className={
@@ -189,6 +193,7 @@ export default function MapView({
                                                 {statusLabel}
                                             </span>
                                         </div>
+                                        
                                     </div>
                                 </Tooltip>
                             </CircleMarker>
