@@ -9,6 +9,12 @@ const LoginCard = () => {
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [showResetForm, setShowResetForm] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetMessage, setResetMessage] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
+
     
     const navigate = useNavigate();
 
@@ -72,6 +78,24 @@ const LoginCard = () => {
         return null;
     }
 
+    const handlePasswordReset = async () => {
+        setResetLoading(true);
+        setResetMessage('');
+
+        const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+            redirectTo: `${window.location.origin}/reset-password`
+        });
+
+        if (error) {
+            setResetMessage('Error sending reset email: ' + error.message);
+        } else {
+            setResetMessage('Check your email for the reset link!');
+        }
+
+        setResetLoading(false);
+    };
+
+
     return (
         <div className="max-w-sm w-full mx-auto rounded-2xl overflow-hidden p-6 sm:max-w-md md:max-w-lg lg:max-w-xl">
             <Form className="w-full justify-center items-center space-y-7" onSubmit={onSubmit}>
@@ -119,6 +143,35 @@ const LoginCard = () => {
                     /> 
                 </div>
 
+                <div>
+                    Forgot Password? 
+                    {!showResetForm ? (
+                        <button
+                        onClick={() => setShowResetForm(true)}
+                        className="underline decoration-sky-500 text-sky-500"
+                        >
+                        Reset Here
+                        </button>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                            className="border rounded-md p-1"
+                        />
+                        <button
+                            onClick={handlePasswordReset}
+                            disabled={resetLoading}
+                            className="bg-sky-500 text-white rounded-md py-1"
+                        >
+                            {resetLoading ? 'Sending...' : 'Send Reset Email'}
+                        </button>
+                        {resetMessage && <p className="text-sm mt-1">{resetMessage}</p>}
+                        </div>
+                )}
+                </div>
                 <div> 
                     Don't have an account? 
                     <a 

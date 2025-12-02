@@ -9,6 +9,11 @@ export default function ProfileCard() {
     const [user, setUser] = useState<any>(null);
     const [displayName, setDisplayName] = useState("");
     const [editing, setEditing] = useState(false);
+    const [users, setUsers] = useState<{ 
+        user_id: string; 
+        name: string; 
+        points: number;
+    }[]>([]);
 
     // Fetch current user on mount
     useEffect(() => {
@@ -24,6 +29,29 @@ export default function ProfileCard() {
 
         fetchUser();
     }, []);
+    
+    useEffect(() => {
+    const fetchLeaderboard = async () => {
+        const { data, error } = await supabase
+        .from("leaderboard")
+        .select("user_id, display_name, total_points")
+        .order("total_points", { ascending: false });
+
+        if (error) console.error("Leaderboard error:", error);
+        else
+        setUsers(
+            (data || []).map((u) => ({
+            user_id: u.user_id,
+            name: u.display_name,
+            points: u.total_points,
+            }))
+        );
+    };
+
+    fetchLeaderboard();
+    }, []);
+
+
 
     // Edit profile button toggles editing mode
     const editProfile = () => {
@@ -35,19 +63,36 @@ export default function ProfileCard() {
     const updateProfile = async () => {
         if (!user) return;
 
-        const { error } = await supabase.auth.updateUser({
-        data: { full_name: displayName },
+        // 1. Update Auth metadata
+        const { error: authError } = await supabase.auth.updateUser({
+            data: { full_name: displayName },
         });
 
-        if (error) {
-        console.error("Failed to update profile:", error.message);
-        return;
+        if (authError) {
+            console.error("Failed to update profile:", authError.message);
+            return;
         }
+
+        // 2. Update the leaderboard table
+        const { error: leaderboardError } = await supabase
+            .from("leaderboard")
+            .update({ display_name: displayName }) // only update the name
+            .eq("user_id", user.id); // match the row for this user
+
+        if (leaderboardError) {
+            console.error("Failed to update leaderboard:", leaderboardError.message);
+            return;
+        }
+
+        setUsers((prevUsers) =>
+            prevUsers.map((u) =>
+                u.user_id === user.id ? { ...u, name: displayName } : u
+            )
+        );
 
         setEditing(false);
         alert("Profile updated!");
     };
-
 
     return (
         <div className="bg-white rounded-lg shadow ml-30 mr-30 mb-30 p-15 w-4/5 h-screen justify-center">
@@ -93,6 +138,15 @@ export default function ProfileCard() {
 
                 <ResponsiveCard title="Leaderboard">
                     <hr className={classes.divider}></hr>
+                    <div className={classes.leaderboardContainer}>
+                        {users.map((user, index) => (
+                        <div key={user.user_id} className={classes.row}>
+                            <span className={classes.rank}>{index + 1}.</span>
+                            <span className={classes.name}>{user.name}</span>
+                            <span className={classes.points}>{user.points} pts</span>
+                        </div>
+                        ))}
+                    </div>
                 </ResponsiveCard>
             </div>
         </div>
