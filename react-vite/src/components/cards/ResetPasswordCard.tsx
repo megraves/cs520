@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import LabeledButton from "../buttons/LabeledButton";
 
 const ResetPasswordCard = () => {
   const [password, setPassword] = useState("");
@@ -64,13 +65,13 @@ const ResetPasswordCard = () => {
           required
           className="border rounded-md p-2"
         />
-        <button
+        <LabeledButton
           type="submit"
           disabled={loading}
-          className="bg-sky-500 text-white py-2 rounded-md"
+          ariaLabel={loading ? "Resetting..." : "Reset Password"}
+
         >
-          {loading ? "Resetting..." : "Reset Password"}
-        </button>
+        </LabeledButton>
         {message && <p className="mt-2 text-sm">{message}</p>}
       </form>
     </div>
