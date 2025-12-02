@@ -7,6 +7,7 @@ type Props = {
     type?: "button" | "submit" | "reset";
     disabled?: boolean;
     loading?: boolean;
+    className?: string;
 };
 
 export default function LabeledButton({
@@ -16,6 +17,7 @@ export default function LabeledButton({
     type = "button",
     disabled = false,
     loading = false,
+    className,
 }: Props) {
     return (
         <Button
@@ -24,8 +26,8 @@ export default function LabeledButton({
             isDisabled={disabled || loading}
             isLoading={loading}
             type={type}
-            className="bg-red-800 text-white rounded-md px-6 py-3 text-base sm:text-lg md:text-xl 
-                       hover:bg-red-900 transition-colors w-full sm:w-auto"
+            className={`bg-red-800 text-white rounded-md px-6 py-3 text-base sm:text-lg md:text-xl 
+                       hover:bg-red-900 transition-colors w-full sm:w-auto ${className}`}
             radius="lg"
         >
             {label || ariaLabel}
