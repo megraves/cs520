@@ -8,6 +8,7 @@ import GoHeader from "../atoms/GoHeader";
 import LoadingSpinner from "../Loading";
 import CheckinMapCard from "../cards/CheckinMapCard"
 import { useGeolocation } from "../../hooks/useGeolocation";
+import { getEventStatus } from "../../utils/eventTime";
 
 // Toggle: persist geocoding results back to DB when coordinates are missing
 const ENABLE_GEOCODE_BACKFILL = false;
@@ -154,7 +155,16 @@ const GoMode = () => {
     return Math.round(haversineMeters(userPos, eventPos));
   }, [userPos, eventPos]);
 
-  const canCheckIn = !!distanceM && distanceM <= CHECKIN_RADIUS_M;
+  //const canCheckIn = !!distanceM && distanceM <= CHECKIN_RADIUS_M;
+  const isInRadius = !!distanceM && distanceM <= CHECKIN_RADIUS_M;
+
+  // Calculate status to enable checkin: only events in live status can be allowed to check in
+  const eventStatus = useMemo(() => {
+    if (!quest) return null;
+    return getEventStatus(quest.date, quest.start_time, quest.end_time, new Date());
+  }, [quest]);
+
+  const canCheckIn = eventStatus === "live" && isInRadius;
 
   // --- Location feature: where check-in will eventually persist to Supabase (demo for now)
   // const handleCheckIn = async () => {
@@ -220,7 +230,7 @@ const GoMode = () => {
           <p className="text-gray-600">{quest.location}</p>
           <p className="text-gray-500">{quest.date_time_text}</p>
 
-          {/* 完成打卡人数 */}
+          {/* Number of people already checked in */}
           <p className="text-sm text-gray-700">
             {checkinCount != null
               ? `Participants: ${checkinCount} `
@@ -234,6 +244,8 @@ const GoMode = () => {
             radiusM={CHECKIN_RADIUS_M}
             distanceM={distanceM}
             canCheckIn={canCheckIn && !isCheckingIn}
+            eventStatus={eventStatus ?? undefined}
+            isInRadius={isInRadius}
             onCheckIn={handleCheckIn}
             geoError={geoErr}
             permission={permission}

@@ -9,6 +9,7 @@ import MapView from "../atoms/MapView";
 
 type LatLng = { lat: number; lng: number };
 type PermState = "granted" | "denied" | "prompt" | "unknown";
+type EventStatus = "upcoming" | "live" | "past";
 
 type Props = {
     // Event coordinates (null until resolved from DB or geocoding)
@@ -25,6 +26,13 @@ type Props = {
 
     // Whether the user is within the allowed radius and can check in
     canCheckIn: boolean;
+
+    // event status
+    eventStatus?: EventStatus | null;
+
+    // whether in allowed radius
+    isInRadius?: boolean;
+
 
     // Handler invoked when the "Check in" button is clicked
     onCheckIn: () => void;
@@ -45,6 +53,8 @@ export default function CheckinMapCard({
     radiusM,
     distanceM,
     canCheckIn,
+    eventStatus,
+    isInRadius,
     onCheckIn,
     geoError,
     permission,
@@ -58,7 +68,20 @@ export default function CheckinMapCard({
         (eventPos && [eventPos.lat, eventPos.lng]) ||
         (userPos && [userPos.lat, userPos.lng]) ||
         [42.391, -72.526];
-
+    // ⭐ 按优先级决定按钮文字
+    const buttonLabel = (() => {
+        if (eventStatus === "upcoming") {
+            return "Event hasn't started yet";
+        }
+        if (eventStatus === "past") {
+            return "Event has finished";
+        }
+        if (isInRadius === false) {
+            // 显式为 false 时提示移动到半径内
+            return `Move within ${radiusM}m to check in`;
+        }
+        return "Check in";
+    })();
     return (
         <div className="bg-white rounded-xl p-5 flex flex-col gap-3 shadow-md">
             <h3 className="text-lg font-semibold">Check-in</h3>
@@ -99,7 +122,7 @@ export default function CheckinMapCard({
                 )}
             </div>
 
-            <div className="pt-2">
+            {/* <div className="pt-2">
                 <button
                     disabled={!canCheckIn}
                     onClick={onCheckIn}
@@ -109,6 +132,18 @@ export default function CheckinMapCard({
                         }`}
                 >
                     {canCheckIn ? "Check in" : `Move within ${radiusM}m to check in`}
+                </button>
+            </div> */}
+            <div className="pt-2">
+                <button
+                    disabled={!canCheckIn}
+                    onClick={onCheckIn}
+                    className={`w-full px-4 py-2 rounded ${canCheckIn
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                >
+                    {buttonLabel}
                 </button>
             </div>
         </div>
