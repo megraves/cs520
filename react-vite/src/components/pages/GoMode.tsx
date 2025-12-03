@@ -175,6 +175,7 @@ const GoMode = () => {
     if (!canCheckIn) return;
     if (!quest) return;
 
+    setCheckinCount(checkinCount ? checkinCount + 1 : 1)
     setIsCheckingIn(true);
     setCheckinMessage(null);
 
