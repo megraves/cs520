@@ -15,7 +15,7 @@ To develop our project we will create a React-vite app using typescript. We will
 
 ### To run the app:
 `cd react-vite`
-
+`npm i`
 `npm run dev`
 
 Navigate to http://localhost:5173/
