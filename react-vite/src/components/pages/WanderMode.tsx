@@ -1,5 +1,6 @@
 import HomeHeader from "../atoms/HomeHeader";
 import Background from "../atoms/Background";
+import LabeledButton from "../buttons/LabeledButton";
 import QuestCard from "../cards/QuestCard";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
@@ -78,18 +79,12 @@ export default function HomePage() {
     );
     return (
         <Background>
-            <HomeHeader></HomeHeader>
-
-            <div className="flex justify-center gap-4 mt-6">
-
-                {/* Enter My Events Page */}
-                <button
-                onClick={() => navigate("/my-events")}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
-                >
-                My Events
-                </button>
-            </div>
+            <HomeHeader>
+                <LabeledButton
+                    onClick={() => navigate("/my-events")}
+                    ariaLabel="My Events"
+                />
+            </HomeHeader>
 
             {/* events + interactive map */}
             <div className="flex flex-row w-full px-20 mt-6 gap-6 h-[70vh]">

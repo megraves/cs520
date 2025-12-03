@@ -201,13 +201,13 @@ const GoMode = () => {
     if (error) {
       // Same people, same event, single check in
       if ((error as any).code === "23505") {
-        setCheckinMessage("✅ You have checked in before!");
+        setCheckinMessage("✅ You have already checked!");
       } else {
         console.error("Check-in failed:", error);
         setCheckinMessage("❌ Checkin failed. Please try again later.");
       }
     } else {
-      setCheckinMessage("✅ Checkin success. You have earned new points!");
+      setCheckinMessage("💰 Checkin success. You have claimed treasure and earned new points!");
       // TODO: Trigger an update of checkin numbers.
     }
 

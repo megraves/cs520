@@ -170,7 +170,7 @@ export default function LocationPicker({
     }, [selected]);
 
     return (
-        <div className="bg-white rounded-xl p-4 shadow-md">
+        <div className="bg-white rounded-xl p-4 shadow-md w-full">
             <h3 className="text-base font-semibold mb-2">Select Location</h3>
 
             {/* Search box + results dropdown */}
@@ -199,7 +199,7 @@ export default function LocationPicker({
             </div>
 
             {/* Map */}
-            <div className="mt-3" style={{ height }}>
+            <div className="mt-3 w-full" style={{ height }}>
                 <MapContainer center={mapCenter} zoom={selected ? 16 : 14} style={{ height: "100%", width: "100%" }}>
                     <TileLayer
                         attribution='&copy; OpenStreetMap contributors'

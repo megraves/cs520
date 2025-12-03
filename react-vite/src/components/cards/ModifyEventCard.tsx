@@ -240,7 +240,7 @@ const ModifyEventCard = ({ mode = "create", existingEvent, onSuccess }: Props) =
   };
 
   return (
-    <div className="max-w-sm w-full mx-auto rounded-2xl overflow-hidden p-6 sm:max-w-md md:max-w-lg lg:max-w-xl bg-white shadow-md">
+    <div className="w-full rounded-2xl p-6 bg-white shadow-md">
       <Form className="w-full space-y-6" onSubmit={handleSubmit}>
         <h1 className="text-xl font-semibold">
           {mode === "edit" ? "Edit Event" : "Create Event"}

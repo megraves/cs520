@@ -56,7 +56,7 @@ type Props = {
 export default function InteractiveEventMapCard({
     events,
     userPos,
-    height = "360px",
+    height = "550px",
 }: Props) {
     const hasEvents = events && events.length > 0;
 

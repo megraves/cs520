@@ -5,6 +5,7 @@ import LoadingSpinner from "../Loading";
 import EventFormCard from "../cards/ModifyEventCard";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import LabeledButton from "../buttons/LabeledButton";
 
 type Event = {
   event_id: string;
@@ -92,26 +93,22 @@ export default function MyEventsPage() {
 
   return (
     <Background>
-      <HomeHeader />
-
-      {/* Return to Home Page */}
-      <div className="flex justify-center mt-6">
-        <button
+      <HomeHeader>
+        {/* Return to Home Page */}
+        <LabeledButton
           onClick={() => navigate("/home")}
-          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded shadow"
-        >
-          ← Back to Home
-        </button>
-      </div>
+          ariaLabel="Home"
+        />
+      </HomeHeader>
 
-      <div className="w-full max-w-5xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      <div className="w-full mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-20 p-20 items-start">
         {/* Left: Create/Edit */}
         <div className="bg-white rounded-2xl p-6 shadow">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">
               {showForm === "edit" ? "Edit Event" : "My Events"}
             </h2>
-            <button
+            <LabeledButton
                 onClick={() => {
                     // Stop current create/edit
                     if (showForm === "create" || showForm === "edit") {
@@ -122,14 +119,14 @@ export default function MyEventsPage() {
                     setShowForm("create");
                     }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded"
-                >
-                {showForm === "create"
-                    ? "Close Create"
+                ariaLabel={showForm === "create"
+                    ? "Cancel"
                     : showForm === "edit"
-                    ? "Close Edit"
+                    ? "Cancel"
                     : "Create New"}
-            </button>
+                  className="sm:text-md md:text-md px-3 py-2"
+                >
+            </LabeledButton>
           </div>
 
           {showForm === "create" && <EventFormCard mode="create" onSuccess={onSuccess} />}
@@ -152,7 +149,7 @@ export default function MyEventsPage() {
               {events.map((ev) => (
                 <li
                   key={ev.event_id}
-                  className="border rounded-xl p-4 flex items-start justify-between"
+                  className="shadow-md rounded-xl p-4 flex items-start justify-between"
                 >
                   <div className="pr-4">
                     <div className="font-medium text-base">{ev.title}</div>
@@ -160,22 +157,22 @@ export default function MyEventsPage() {
                     <div className="text-sm text-gray-500">{ev.date_time_text}</div>
                   </div>
                   <div className="flex gap-2">
-                    <button
+                    <LabeledButton
                       onClick={() => {
                         setSelectedEvent(ev);
                         setShowForm("edit");
                       }}
-                      className="px-3 py-1.5 rounded border hover:bg-gray-50"
+                      ariaLabel="Edit"
+                      className="sm:text-md md:text-md px-3 py-1 border"
                     >
-                      Edit
-                    </button>
-                    <button
+                    </LabeledButton>
+                    <LabeledButton
                       onClick={() => handleDelete(ev.event_id)}
                       disabled={!!busyIds[ev.event_id]}
-                      className="px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                      className="sm:text-md md:text-md px-3 py-1 bg-red-600 text-white hover:bg-red-400 disabled:opacity-50"
+                      ariaLabel= {busyIds[ev.event_id] ? "Deleting..." : "Delete"}
                     >
-                      {busyIds[ev.event_id] ? "Deleting..." : "Delete"}
-                    </button>
+                    </LabeledButton>
                   </div>
                 </li>
               ))}
