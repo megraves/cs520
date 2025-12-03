@@ -11,6 +11,7 @@ export default function ProfileCard() {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [points, setPoints] = useState<number>(0);
+    const [events, setEvents] = useState<number>(0);
     const [displayName, setDisplayName] = useState("User");
     const [editing, setEditing] = useState(false);
     const [users, setUsers] = useState<{ 
@@ -70,6 +71,20 @@ export default function ProfileCard() {
     };
 
     fetchPoints();
+    }, [user]);
+
+    useEffect(() => {
+    const fetchEventsAttended = async () => {
+        const {data, error} = await supabase
+        .from("event_checkins")
+        .select('*', { count: 'exact'})
+        .eq("user_id", `${user.id}`);
+
+        if (error) console.error("Events Sum error", error);
+        else setEvents(data.length);
+    }
+
+    fetchEventsAttended();
     }, [user]);
 
 
@@ -146,9 +161,13 @@ export default function ProfileCard() {
                             </div>
                             ) : (
                             <div className="flex flex-col">
-                                <span>{`${username}`}</span>
+                                <span className="font-bold">{`${username}`}</span>
                                 <span>{`${email}`}</span>
-                                <h1>{`You have ${points} points.`}</h1>
+                                <span>__________________________________</span>
+                                <span className="font-bold">Stats:</span>
+                                <span>{`You have attended ${events} events.`}</span>
+                                <span>{`You have ${points} points.`}</span>
+                                <span className="font-bold">🧭 Keep questing!</span>
                                 
                             </div>
                             )}
