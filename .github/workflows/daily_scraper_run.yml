@@ -27,6 +27,7 @@ jobs:
           pip install requests
           pip install beautifulsoup4
           pip install supabase
+          pip install rapidfuzz
 
       - name: Run Python script
         working-directory: ./Scraper
