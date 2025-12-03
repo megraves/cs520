@@ -18,7 +18,7 @@ type Event = {
   url?: string;
   start_time?: string;
   end_time?: string;
-  date?: string;
+  event_date?: string;
   image_url?: string;
   creator?: string | null;
 
@@ -62,7 +62,7 @@ export default function HomePage() {
         .filter((e) => e.event_lat != null && e.event_lng != null)
         .map((e) => {
         const now = new Date();
-        const status = getEventStatus(e.date, e.start_time, e.end_time, now);
+        const status = getEventStatus(e.event_date, e.start_time, e.end_time, now);
 
         return {
         id: e.event_id,

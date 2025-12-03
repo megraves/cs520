@@ -105,12 +105,17 @@ export function getEventStatus(
   const start = buildEventDate(dateStr, startTime);
   const end = buildEventDate(dateStr, endTime);
 
-  if (!start || !end) {
+  if (start && end) {
+    if (now < start) return "upcoming";
+    if (now > end) return "past";
     // Fallback policy for malformed or missing data
-    return "upcoming";
+    return "live";
   }
-
-  if (now < start) return "upcoming";
-  if (now > end) return "past";
-  return "live";
+  else if (end)
+    return (now > end)? "past":"live"
+  else if (start)
+    return (now < start)?"upcoming":"live"
+  else
+    // Fallback policy for malformed or missing data
+    return "live";
 }
