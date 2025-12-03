@@ -97,7 +97,7 @@ export default function MapView({
     center,
     userPos,
     eventPos,
-    eventRadius = 10000,
+    eventRadius = 100,
     height = "320px",
     eventMarkers,
 }: Props) {
