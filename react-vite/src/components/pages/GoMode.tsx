@@ -21,7 +21,7 @@ type Event = {
   url?: string;
   start_time?: string;
   end_time?: string;
-  date?: string;
+  event_date?: string;
   image_url?: string;
   // Location fields persisted in DB (new)
   event_lat?: number | null;
@@ -161,7 +161,7 @@ const GoMode = () => {
   // Calculate status to enable checkin: only events in live status can be allowed to check in
   const eventStatus = useMemo(() => {
     if (!quest) return null;
-    return getEventStatus(quest.date, quest.start_time, quest.end_time, new Date());
+    return getEventStatus(quest.event_date, quest.start_time, quest.end_time, new Date());
   }, [quest]);
 
   const canCheckIn = eventStatus === "live" && isInRadius;
