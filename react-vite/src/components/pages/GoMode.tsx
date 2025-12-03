@@ -195,7 +195,7 @@ const GoMode = () => {
     const { error } = await supabase.from("event_checkins").insert({
       event_id: quest.event_id, // Your event_id is text
       user_id: user.id,
-      // points: 10, // Set points yourself
+      points: 10, // Set points yourself
     });
 
     if (error) {
@@ -208,6 +208,8 @@ const GoMode = () => {
       }
     } else {
       setCheckinMessage("💰 Checkin success. You have claimed treasure and earned new points!");
+      setCheckinCount(checkinCount ? checkinCount + 1 : 1)
+
       // TODO: Trigger an update of checkin numbers.
     }
 

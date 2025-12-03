@@ -82,10 +82,11 @@ export default function ProfileCard() {
 
         if (error) console.error("Events Sum error", error);
         else setEvents(data.length);
+        console.log(data);
     }
 
     fetchEventsAttended();
-    }, [user]);
+    }, [user, points]);
 
 
 
