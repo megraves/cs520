@@ -31,7 +31,7 @@ type Event = {
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
-const CHECKIN_RADIUS_M = 10000;
+const CHECKIN_RADIUS_M = 75;
 
 // Haversine helper to compute straight-line distance in meters between two lat/lng points
 function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
@@ -195,7 +195,7 @@ const GoMode = () => {
     const { error } = await supabase.from("event_checkins").insert({
       event_id: quest.event_id, // Your event_id is text
       user_id: user.id,
-      // points: 10, // Set points yourself
+      points: 10, // Set points yourself
     });
 
     if (error) {
