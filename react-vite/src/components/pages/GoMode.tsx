@@ -175,7 +175,6 @@ const GoMode = () => {
     if (!canCheckIn) return;
     if (!quest) return;
 
-    setCheckinCount(checkinCount ? checkinCount + 1 : 1)
     setIsCheckingIn(true);
     setCheckinMessage(null);
 
@@ -209,6 +208,8 @@ const GoMode = () => {
       }
     } else {
       setCheckinMessage("💰 Checkin success. You have claimed treasure and earned new points!");
+      setCheckinCount(checkinCount ? checkinCount + 1 : 1)
+
       // TODO: Trigger an update of checkin numbers.
     }
 
