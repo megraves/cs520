@@ -80,14 +80,10 @@ export default function HomePage() {
     return (
         <Background>
             <HomeHeader>
-                
-                {/* Enter My Events Page */}
                 <LabeledButton
-                onClick={() => navigate("/my-events")}
-                ariaLabel="My Events"
-                >
-                </LabeledButton>
-                
+                    onClick={() => navigate("/my-events")}
+                    ariaLabel="My Events"
+                />
             </HomeHeader>
 
             {/* events + interactive map */}

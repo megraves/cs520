@@ -137,7 +137,7 @@ const LoginCard = () => {
 
                     <LabeledButton
                         type="submit"
-                        ariaLabel="Submit login form"
+                        ariaLabel="Submit"
                         label={loading ? "Logging in..." : "Log In"}
                         loading={loading}
                     /> 
