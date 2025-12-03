@@ -174,10 +174,17 @@ export default function ProfileCard() {
                     </div>
                 </ResponsiveCard>
 
-                <ResponsiveCard title="Inventory" className="flex flex-row flex-wrap gap-5">
-                    <div>Add image chest</div>
-                    <div>Add image grail</div>
-                    Add labels with counts (useState)
+                <ResponsiveCard title="Inventory" className="flex flex-col justify-between items-center p-4">
+                    <div className="flex flex-row flex-wrap gap-5 justify-between items-center p-4">
+                        <img class="h-40 w-50 object-size-down" src="https://media.istockphoto.com/id/1224791834/vector/vector-illustration-of-many-gold-coins.jpg?s=612x612&w=0&k=20&c=MXx_vY0z-OW3mgdbXaPlfu01EG1zharaUE-XbtaxKDc=" alt="Treasure Clipart" className="w-50 h-50"></img>
+                        <img class="h-45 w-50 object-size-down" src="https://thumbs.dreamstime.com/b/cute-treasure-map-cartoon-vector-illustration-motif-set-hand-drawn-isolated-marks-spot-elements-clipart-hunt-blog-ocean-147816533.jpg" alt="Map Clipart" className="w-50 h-50"></img>
+                        <img class="h-50 w-30 object-size-down" src="https://media.istockphoto.com/id/153540835/vector/cartoon-illustration-of-golden-cup-on-white-surfaces.jpg?s=612x612&w=0&k=20&c=qNzZ2hWo1dA0sD-jJ99CHtRMco6gvnMStBBVuTs-BIo=" alt="Holy Grail Clipart" className="w-50 h-50"></img>
+                    </div>
+                    <div className="flex flex-row flex-wrap gap-30 justify-between items-center">
+                        <span className="font-bold">{`${events} chests`}</span>
+                        <span className="font-bold">{`${events} events attended`}</span>
+                        <span className="font-bold">{`${0} grails`}</span>
+                    </div>
                 </ResponsiveCard>
 
                 <ResponsiveCard title="Leaderboard">

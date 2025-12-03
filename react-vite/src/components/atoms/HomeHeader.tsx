@@ -16,7 +16,7 @@ export default function HomeHeader({children}: Props) {
     return (
         <div className="bg-white mt-0 ml-0 flex flex-row justify-between p-5 w-full">
             <div className="flex flex-row items-center gap-5">
-                <IconButton icon="fa-regular fa-circle-user fa-5x fa-" onAction={goToProfile}></IconButton>
+                <IconButton icon="fa-regular fa-circle-user fa-5x" onAction={goToProfile}></IconButton>
                 <h1 className="text-red-800 text-5xl font-bold">Campus Quest</h1>
             </div>
             <div className="flex flex-row items-center gap-5">
