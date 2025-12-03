@@ -1,3 +1,22 @@
+from rapidfuzz import process, fuzz
+
+LOCATION_THRESHOLD = 50  # 0–100
+
+def find_best_location_match(loc_text: str, location_dict: dict):
+    if not loc_text:
+        return None
+
+    match, score, _ = process.extractOne(
+        loc_text,
+        location_dict.keys(),
+        scorer=fuzz.token_sort_ratio
+    )
+
+    if score >= LOCATION_THRESHOLD:
+        return match
+    return None
+
+
 def parse_date_time_text(date_time_text):
     if "," in date_time_text:
         _, rest = date_time_text.split(",", 1)
