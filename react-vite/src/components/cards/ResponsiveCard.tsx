@@ -5,15 +5,19 @@ type Props = {
     children?: React.ReactNode,
     button?: React.ReactNode,
     className?: string,
+    icon?: React.ReactNode
 
 }
 
-export default function ResponsiveCard({title, children, button, className}: Props) {
+export default function ResponsiveCard({title, children, button, className, icon}: Props) {
 
     return(
         <div className={`flex flex-col px-5 py-4 max-h-full max-w-1/2 ${classes.base}`}>
             <div className="flex flex-row justify-between items-center gap-2">
-                <h2 className={classes.title}>{title}</h2>
+                <div className="flex flex-row items-center gap-5">
+                    {icon}
+                    <h2 className={classes.title}>{title}</h2>
+                </div>
                 {button && <div>{button}</div>}
             </div>
             <div>

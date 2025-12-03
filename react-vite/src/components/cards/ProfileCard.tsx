@@ -4,10 +4,14 @@ import * as classes from "./card-classes";
 
 import { supabase } from "../../lib/supabaseClient";
 import { useEffect, useState } from "react";
+import LabeledButton from "../buttons/LabeledButton";
 
 export default function ProfileCard() {
     const [user, setUser] = useState<any>(null);
-    const [displayName, setDisplayName] = useState("");
+    const [username, setUsername] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [points, setPoints] = useState<number>(0);
+    const [displayName, setDisplayName] = useState("User");
     const [editing, setEditing] = useState(false);
     const [users, setUsers] = useState<{ 
         user_id: string; 
@@ -23,6 +27,8 @@ export default function ProfileCard() {
 
         if (user) {
             setUser(user);
+            setUsername(user.user_metadata?.username || "");
+            setEmail(user.user_metadata?.email || "");
             setDisplayName(user.user_metadata?.full_name || "");
         }
         };
@@ -50,6 +56,21 @@ export default function ProfileCard() {
 
     fetchLeaderboard();
     }, []);
+
+    useEffect(() => {
+    // Fetch the current user's points
+    const fetchPoints = async () => {
+        const { data, error } = await supabase
+        .from("leaderboard")
+        .select("total_points")
+        .eq("user_id", `${user.id}`);
+
+        if (error) console.error("Points Fetch error", error);
+        else setPoints(data[0].total_points);
+    };
+
+    fetchPoints();
+    }, [user]);
 
 
 
@@ -98,34 +119,38 @@ export default function ProfileCard() {
         <div className="bg-white rounded-lg shadow ml-30 mr-30 mb-30 p-15 w-4/5 h-screen justify-center">
             <div className="flex flex-row items-center flex-wrap justify-center gap-20">
                 <ResponsiveCard 
-                    title={"UserName"} 
-                    className="flex flex-row justify-center p-5" 
+                    title={displayName} 
+                    className="flex flex-row justify-center p-5 w-full" 
                     button={
                         <IconButton
                             icon="fa-solid fa-pen" 
                             onAction={editProfile}
                         />
                     }
+                    icon={<i className="fa-regular fa-circle-user fa-2xl"/>}
                 >
                     <div>
-                        <i className="fa-regular fa-circle-user fa-2xl"/>
                         {editing ? (
-                            <div className="flex flex-row gap-2 items-center">
+                            <div className="flex flex-row gap-2">
                                 <input
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
-                                className="border rounded p-1"
+                                className="border rounded p-1 items-center"
                                 />
-                                <button
+                                <LabeledButton
                                 onClick={updateProfile}
-                                className="bg-blue-500 text-white px-2 py-1 rounded"
-                                >
-                                Save
-                                </button>
+                                ariaLabel="Save"
+                                className="px-2 py-1"
+                                />
                             </div>
                             ) : (
-                            <span>{displayName || "Guest"}</span>
+                            <div className="flex flex-col">
+                                <span>{`${username}`}</span>
+                                <span>{`${email}`}</span>
+                                <h1>{`You have ${points} points.`}</h1>
+                                
+                            </div>
                             )}
                     </div>
                 </ResponsiveCard>
