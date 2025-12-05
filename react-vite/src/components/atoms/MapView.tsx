@@ -30,14 +30,13 @@ const userIcon = L.icon({
 });
 
 // Add a tiny random offset (±delta degrees) to lat/lng
-const jitterLatLng = (lat: number, lng: number, delta = 0.0005) => {
+const jitterLatLng = (lat: number, lng: number, delta = 0.0002) => {
     const randomOffset = () => (Math.random() * 2 - 1) * delta; // ±delta
     return {
         lat: lat + randomOffset(),
         lng: lng + randomOffset(),
     };
 };
-
 
 // --- Event marker (custom red SVG teardrop) ---------------------------------
 const eventIcon = L.divIcon({
