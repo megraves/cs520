@@ -29,6 +29,16 @@ const userIcon = L.icon({
     shadowSize: [41, 41],
 });
 
+// Add a tiny random offset (±delta degrees) to lat/lng
+const jitterLatLng = (lat: number, lng: number, delta = 0.0005) => {
+    const randomOffset = () => (Math.random() * 2 - 1) * delta; // ±delta
+    return {
+        lat: lat + randomOffset(),
+        lng: lng + randomOffset(),
+    };
+};
+
+
 // --- Event marker (custom red SVG teardrop) ---------------------------------
 const eventIcon = L.divIcon({
     className: "",
@@ -128,6 +138,8 @@ export default function MapView({
                 {/* New: Mutiple events for interactive event map */}
                 {eventMarkers &&
                     eventMarkers.map((e) => {
+                        const { lat, lng } = jitterLatLng(e.lat, e.lng);
+                        
                         const statusLabel =
                             e.status === "live"
                                 ? "Live now"
@@ -160,7 +172,7 @@ export default function MapView({
                         return (
                             <CircleMarker
                                 key={e.id}
-                                center={[e.lat, e.lng]}
+                                center={[lat, lng]}
                                 radius={8}
                                 pathOptions={{
                                     color: markerColor,
