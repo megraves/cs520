@@ -81,6 +81,7 @@ type Props = {
 
     // Multiple events
     eventMarkers?: EventMarker[];
+    onMarkerClick?: (id: string) => void;
 };
 
 // --- Smart viewport fitting helper -----------------------------------------
@@ -109,6 +110,7 @@ export default function MapView({
     eventRadius = 100,
     height = "320px",
     eventMarkers,
+    onMarkerClick,
 }: Props) {
     return (
         <div style={{ height }}>
@@ -178,6 +180,9 @@ export default function MapView({
                                     fillColor: markerFillColor,
                                     fillOpacity: 0.9,
                                     weight: 2,
+                                }}
+                                eventHandlers={{
+                                    click: () => onMarkerClick?.(e.id), // <-- navigate on click
                                 }}
                             >
                                 <Tooltip
