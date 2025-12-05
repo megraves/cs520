@@ -1,6 +1,7 @@
 // src/components/cards/InteractiveEventMapCard.tsx
 
 import MapView from "../atoms/MapView";
+import { useNavigate } from "react-router-dom";
 
 type LatLng = { lat: number; lng: number };
 
@@ -40,6 +41,7 @@ type Props = {
 
     /** Optional: explicit height for the map viewport (CSS value). */
     height?: string;
+    onMarkerClick?: (questId: string) => void;
 };
 
 /**
@@ -56,8 +58,10 @@ type Props = {
 export default function InteractiveEventMapCard({
     events,
     userPos,
-    height = "550px",
+    height = "100%",
 }: Props) {
+    const navigate = useNavigate();
+    
     const hasEvents = events && events.length > 0;
 
     // Logical center point for UMass Amherst campus
@@ -90,6 +94,7 @@ export default function InteractiveEventMapCard({
                     timeText: e.timeText,
                     checkinCount: e.checkinCount,
                 }))}
+                onMarkerClick={(questId) => navigate(`/go-mode/${questId}`)} 
                 height={height}
             />
 

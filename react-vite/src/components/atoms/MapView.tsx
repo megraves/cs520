@@ -29,6 +29,15 @@ const userIcon = L.icon({
     shadowSize: [41, 41],
 });
 
+// Add a tiny random offset (±delta degrees) to lat/lng
+const jitterLatLng = (lat: number, lng: number, delta = 0.0002) => {
+    const randomOffset = () => (Math.random() * 2 - 1) * delta; // ±delta
+    return {
+        lat: lat + randomOffset(),
+        lng: lng + randomOffset(),
+    };
+};
+
 // --- Event marker (custom red SVG teardrop) ---------------------------------
 const eventIcon = L.divIcon({
     className: "",
@@ -72,6 +81,7 @@ type Props = {
 
     // Multiple events
     eventMarkers?: EventMarker[];
+    onMarkerClick?: (id: string) => void;
 };
 
 // --- Smart viewport fitting helper -----------------------------------------
@@ -100,6 +110,7 @@ export default function MapView({
     eventRadius = 100,
     height = "320px",
     eventMarkers,
+    onMarkerClick,
 }: Props) {
     return (
         <div style={{ height }}>
@@ -128,6 +139,8 @@ export default function MapView({
                 {/* New: Mutiple events for interactive event map */}
                 {eventMarkers &&
                     eventMarkers.map((e) => {
+                        const { lat, lng } = jitterLatLng(e.lat, e.lng);
+                        
                         const statusLabel =
                             e.status === "live"
                                 ? "Live now"
@@ -160,13 +173,16 @@ export default function MapView({
                         return (
                             <CircleMarker
                                 key={e.id}
-                                center={[e.lat, e.lng]}
+                                center={[lat, lng]}
                                 radius={8}
                                 pathOptions={{
                                     color: markerColor,
                                     fillColor: markerFillColor,
                                     fillOpacity: 0.9,
                                     weight: 2,
+                                }}
+                                eventHandlers={{
+                                    click: () => onMarkerClick?.(e.id), // <-- navigate on click
                                 }}
                             >
                                 <Tooltip

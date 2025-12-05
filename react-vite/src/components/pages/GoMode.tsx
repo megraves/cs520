@@ -2,13 +2,15 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import LabeledButton from "../buttons/LabeledButton";
 import { useNavigate } from "react-router-dom";
 import Background from "../atoms/Background";
-import GoHeader from "../atoms/GoHeader";
+import HomeHeader from "../atoms/HomeHeader";
 import LoadingSpinner from "../Loading";
 import CheckinMapCard from "../cards/CheckinMapCard"
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { getEventStatus } from "../../utils/eventTime";
+import * as classes from "../cards/card-classes"
 
 // Toggle: persist geocoding results back to DB when coordinates are missing
 const ENABLE_GEOCODE_BACKFILL = false;
@@ -223,13 +225,17 @@ const GoMode = () => {
 
   return (
     <Background>
-      <GoHeader></GoHeader>
+      <HomeHeader>
+              {/* Return to Home Page */}
+              <LabeledButton
+                onClick={() => navigate("/home")}
+                ariaLabel="Home"
+              />
+            </HomeHeader>
       <div className="flex justify-center mt-10">
-        <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-6 shadow-md">
-
-
-          <h1 className="text-2xl font-bold">{quest.title}</h1>
-          <p className="text-gray-600">{quest.location}</p>
+        <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-3 shadow-md">
+          <h1 className={`${classes.title}`}>{quest.title}</h1>
+          <p className={`${classes.subtitle}`}>{quest.location}</p>
           <p className="text-gray-500">{quest.date_time_text}</p>
 
           {/* Number of people already checked in */}
@@ -238,8 +244,16 @@ const GoMode = () => {
               ? `Participants: ${checkinCount} `
               : "Loading paticipant counts…"}
           </p>
-
-
+          {quest.url && (
+            <a
+              href={quest.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm underline text-blue-700"
+            >
+              Go to Event Website
+            </a>
+          )}
           <CheckinMapCard
             eventPos={eventPos}
             userPos={userPos ?? null}
@@ -263,23 +277,6 @@ const GoMode = () => {
           {quest.image_url && (
             <img src={quest.image_url} alt={quest.title} className="my-4 rounded" />
           )}
-          {quest.url && (
-            <a
-              href={quest.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline mt-3 inline-block"
-            >
-              Go to Event Website
-            </a>
-          )}
-
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-5 px-4 py-2 bg-gray-200 rounded"
-          >
-            Back
-          </button>
         </div>
       </div>
     </Background>

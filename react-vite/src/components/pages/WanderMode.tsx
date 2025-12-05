@@ -28,33 +28,76 @@ type Event = {
   checkin_count?: number | null; 
 };
 
+const parseTimeToMinutes = (timeStr?: string | null) => {
+  if (!timeStr) return null;
+
+  const cleaned = timeStr.replace(/\s+/g, '').toLowerCase();
+  const match = cleaned.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)$/);
+
+  if (!match) return null;
+
+  const hoursStr = match[1];       // string from regex
+  const minutesStr = match[2];     // string or undefined
+  const period = match[3];         // "am" or "pm"
+
+  let hours = parseInt(hoursStr, 10);      // now hours is a number
+  const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
+
+  if (period === 'pm' && hours !== 12) hours += 12;
+  if (period === 'am' && hours === 12) hours = 0;
+
+  return hours * 60 + minutes; // total minutes
+};
+
+
+
 export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     //const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date()
+    const localToday = today.toLocaleDateString('sv-SE'); // YYYY-MM-DD format
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            const { data, error } = await supabase
-                .from("daily_event_calendar_with_stats")
-                .select("*")
-                .eq('event_date', today) // only display todays events (even if today's events have passed their time)
-                .order('event_date', { ascending: true })
-                .order("date_time_text", { ascending: true });
+    const fetchEvents = async () => {
+        const { data, error } = await supabase
+        .from("daily_event_calendar_with_stats")
+        .select("*")
+        .eq('event_date', localToday);
 
-            if (error) {
-                console.error("Error fetching events:", error);
-            } else {
-                setEvents(data || []);
-            }
-            setLoading(false);
-        };
+        if (error) {
+        console.error("Error fetching events:", error);
+        setEvents([]);
+        } else {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-        fetchEvents();
+        const upcomingEvents = (data || [])
+            .filter(e => {
+            const endMinutes = parseTimeToMinutes(e.end_time);
+            // Include events that haven't ended yet or with no end_time
+            return endMinutes === null || endMinutes > currentMinutes;
+            })
+            .sort((a, b) => {
+            const aTime = parseTimeToMinutes(a.end_time);
+            const bTime = parseTimeToMinutes(b.end_time);
+
+            if (aTime === null) return 1;
+            if (bTime === null) return -1;
+
+            return aTime - bTime;
+            });
+
+        setEvents(upcomingEvents);
+        }
+        setLoading(false);
+    };
+
+    fetchEvents();
     }, []);
+
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
     // Get events that have event_lat&event_lng EventWithCoords
