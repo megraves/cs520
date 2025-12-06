@@ -80,6 +80,9 @@ export default function CheckinMapCard({
             // 显式为 false 时提示移动到半径内
             return `Move within ${radiusM}m to check in`;
         }
+        if (!canCheckIn) {
+            return "Checked in!"
+        }
         return "Check in";
     })();
     return (

@@ -166,7 +166,7 @@ const GoMode = () => {
     return getEventStatus(quest.event_date, quest.start_time, quest.end_time, new Date());
   }, [quest]);
 
-  const canCheckIn = eventStatus === "live" && isInRadius;
+  const canCheckIn: boolean = eventStatus === "live" && isInRadius && !isCheckingIn;
 
   // --- Location feature: where check-in will eventually persist to Supabase (demo for now)
   // const handleCheckIn = async () => {
@@ -176,9 +176,10 @@ const GoMode = () => {
     // Check again
     if (!canCheckIn) return;
     if (!quest) return;
+    if (isCheckingIn) return;
 
     setIsCheckingIn(true);
-    setCheckinMessage(null);
+    setCheckinMessage("Checking in...");
 
     // 1. Get current user
     const {
@@ -204,18 +205,20 @@ const GoMode = () => {
       // Same people, same event, single check in
       if ((error as any).code === "23505") {
         setCheckinMessage("✅ You have already checked!");
+        setIsCheckingIn(true);
+        return;
       } else {
         console.error("Check-in failed:", error);
         setCheckinMessage("❌ Checkin failed. Please try again later.");
+        setIsCheckingIn(false);
+        return;
       }
     } else {
-      setCheckinMessage("💰 Checkin success. You have claimed treasure and earned new points!");
-      setCheckinCount(checkinCount ? checkinCount + 1 : 1)
-
-      // TODO: Trigger an update of checkin numbers.
+      setCheckinMessage("💰 Checkin success. You have earned new points!");
+      setCheckinCount(checkinCount ? checkinCount + 1 : 1);
+      setIsCheckingIn(true);
+      return;
     }
-
-    setIsCheckingIn(false);
   };
 
 
