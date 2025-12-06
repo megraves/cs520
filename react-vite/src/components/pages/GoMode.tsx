@@ -84,6 +84,7 @@ const GoMode = () => {
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
   const [checkinCount, setCheckinCount] = useState<number | null>(null);
+  const [hasCheckedIn, setHasCheckedIn] = useState<boolean>(false)
 
   // --- Location feature: real-time user geolocation (watchPosition)
   const { pos: userPos, error: geoError, permission, isSecure, requestOnce } = useGeolocation(true);
@@ -165,6 +166,53 @@ const GoMode = () => {
     if (!quest) return null;
     return getEventStatus(quest.event_date, quest.start_time, quest.end_time, new Date());
   }, [quest]);
+
+
+  const fetchUserId = async () => {
+    const {data: { user }, error} = await supabase.auth.getUser();
+      console.log("Fetched user:", user, "Error:", error);
+
+      if (error) {
+          console.log("Error fetching userid");
+          return;
+      }
+      else {
+        return user?.id;
+      }
+  }
+
+  // See if the user has already checked into the event
+  useEffect(() => {
+    const fetchEventCheckin = async () => {
+
+      const userId = await fetchUserId();
+
+      const { data, error } = await supabase
+      //.from("daily_event_calendar")
+      .from("event_checkins")
+      .select("*")
+      .eq("event_id", questId)
+      .eq("user_id", userId)
+
+      console.log(data)
+
+      if (error) {
+        console.error("Error checkin check:", error);
+        return;
+      } else {
+        if (data.length == 0) {
+          console.log("length is zero")
+          setHasCheckedIn(false);
+        } else {
+          setHasCheckedIn(true);
+        }
+      }
+      
+    };
+    
+    fetchEventCheckin();
+
+  }, [questId]);
 
   const canCheckIn: boolean = eventStatus === "live" && isInRadius && !isCheckingIn;
 
@@ -262,7 +310,7 @@ const GoMode = () => {
             userPos={userPos ?? null}
             radiusM={CHECKIN_RADIUS_M}
             distanceM={distanceM}
-            canCheckIn={canCheckIn && !isCheckingIn}
+            canCheckIn={canCheckIn && !isCheckingIn && !hasCheckedIn}
             eventStatus={eventStatus ?? undefined}
             isInRadius={isInRadius}
             onCheckIn={handleCheckIn}
