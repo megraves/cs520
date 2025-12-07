@@ -11,6 +11,7 @@ import CheckinMapCard from "../cards/CheckinMapCard"
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { getEventStatus } from "../../utils/eventTime";
 import * as classes from "../cards/card-classes"
+import TreasureCard from "../cards/TreasureCard";
 
 // Toggle: persist geocoding results back to DB when coordinates are missing
 const ENABLE_GEOCODE_BACKFILL = false;
@@ -266,6 +267,7 @@ const GoMode = () => {
       setCheckinMessage("💰 Checkin success. You have earned new points!");
       setCheckinCount(checkinCount ? checkinCount + 1 : 1);
       setIsCheckingIn(true);
+      setHasCheckedIn(true);
       return;
     }
   };
@@ -286,26 +288,33 @@ const GoMode = () => {
             </HomeHeader>
       <div className="flex justify-center mt-10">
         <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-3 shadow-md">
-          <h1 className={`${classes.title}`}>{quest.title}</h1>
-          <p className={`${classes.subtitle}`}>{quest.location}</p>
-          <p className="text-gray-500">{quest.date_time_text}</p>
+          <div className="flex flex-row justify-between">
+            <div>
+              <h1 className={`${classes.title}`}>{quest.title}</h1>
+              <p className={`${classes.subtitle}`}>{quest.location}</p>
+              <p className="text-gray-500">{quest.date_time_text}</p>
 
-          {/* Number of people already checked in */}
-          <p className="text-sm text-gray-700">
-            {checkinCount != null
-              ? `Participants: ${checkinCount} `
-              : "Loading paticipant counts…"}
-          </p>
-          {quest.url && (
-            <a
-              href={quest.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm underline text-blue-700"
-            >
-              Go to Event Website
-            </a>
-          )}
+              {/* Number of people already checked in */}
+              <p className="text-sm text-gray-700">
+                {checkinCount != null
+                  ? `Participants: ${checkinCount} `
+                  : "Loading paticipant counts…"}
+              </p>
+              {quest.url && (
+                <a
+                  href={quest.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm underline text-blue-700"
+                >
+                  Go to Event Website
+                </a>
+              )}
+            </div>
+            <div>
+              {hasCheckedIn ? (<TreasureCard type="chest" isCheckedIn={hasCheckedIn}/>) : (<></>)}
+            </div>
+          </div>
           <CheckinMapCard
             eventPos={eventPos}
             userPos={userPos ?? null}

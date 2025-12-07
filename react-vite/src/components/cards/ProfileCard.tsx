@@ -11,6 +11,7 @@ export default function ProfileCard() {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [points, setPoints] = useState<number>(0);
+    const [treasure, setTreasure] = useState<{chests: number, grails: number}>({chests: 0, grails: 0})
     const [events, setEvents] = useState<number>(0);
     const [displayName, setDisplayName] = useState("User");
     const [editing, setEditing] = useState(false);
@@ -60,17 +61,21 @@ export default function ProfileCard() {
 
     useEffect(() => {
     // Fetch the current user's points
-    const fetchPoints = async () => {
+    const fetchPointsAndTreasure = async () => {
         const { data, error } = await supabase
         .from("leaderboard")
-        .select("total_points")
-        .eq("user_id", `${user.id}`);
+        .select("total_points, chest_count, grail_count")
+        .eq("user_id", `${user.id}`)
+        .single();
 
-        if (error) console.error("Points Fetch error", error);
-        else setPoints(data[0].total_points);
+        if (error) console.error("Points/Treasure Fetch error", error);
+        else {
+            setPoints(data.total_points);
+            setTreasure({chests: data.chest_count, grails: data.grail_count});
+        }
     };
 
-    fetchPoints();
+    fetchPointsAndTreasure();
     }, [user]);
 
     useEffect(() => {
@@ -182,9 +187,9 @@ export default function ProfileCard() {
                         <img className="w-35 h-50 object-scale-down" src="https://media.istockphoto.com/id/153540835/vector/cartoon-illustration-of-golden-cup-on-white-surfaces.jpg?s=612x612&w=0&k=20&c=qNzZ2hWo1dA0sD-jJ99CHtRMco6gvnMStBBVuTs-BIo=" alt="Holy Grail Clipart"></img>
                     </div>
                     <div className="flex flex-row flex-wrap gap-30 justify-between items-center">
-                        <span className="font-bold">{`${events} chests`}</span>
+                        <span className="font-bold">{`${treasure.chests} chests`}</span>
                         <span className="font-bold">{`${events} events attended`}</span>
-                        <span className="font-bold">{`${0} grails`}</span>
+                        <span className="font-bold">{`${treasure.grails} grails`}</span>
                     </div>
                 </ResponsiveCard>
 

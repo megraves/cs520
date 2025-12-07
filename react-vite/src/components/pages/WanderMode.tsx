@@ -96,7 +96,7 @@ export default function HomePage() {
     };
 
     fetchEvents();
-    }, []);
+    }, [localToday]);
 
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
