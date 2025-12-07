@@ -143,6 +143,8 @@ export default function HomePage() {
                     title={event.title}
                     location={event.location}
                     creator={event.creator ?? null}
+                    time={event.start_time ?? null}
+                    isVirtual={!event.location}
                     />
                 ))
                 )}

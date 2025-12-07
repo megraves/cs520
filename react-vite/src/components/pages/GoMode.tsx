@@ -33,6 +33,7 @@ type Event = {
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
+// TODO: change to 50m when done with testing/debugging
 const CHECKIN_RADIUS_M = 10000;
 
 // Haversine helper to compute straight-line distance in meters between two lat/lng points
