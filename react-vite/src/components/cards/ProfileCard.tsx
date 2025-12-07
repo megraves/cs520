@@ -19,6 +19,15 @@ export default function ProfileCard() {
         name: string; 
         points: number;
     }[]>([]);
+    const [currentStreak, setCurrentStreak] = useState<number>(0);
+    const [longestStreak, setLongestStreak] = useState<number>(0);
+    const [streakUsers, setStreakUsers] = useState<{
+        user_id: string;
+        name: string;
+        current_streak: number;
+        longest_streak: number;
+    }[]>([]);
+
 
     // Fetch current user on mount
     useEffect(() => {
@@ -36,6 +45,57 @@ export default function ProfileCard() {
 
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        const fetchStreaks = async () => {
+            if (!user) return;
+
+            const { data, error } = await supabase
+                .from("user_event_streaks")
+                .select("current_streak, longest_streak")
+                .eq("user_id", user.id)
+                .single();
+
+            if (error) {
+                console.error("Streak fetch error:", error);
+            } else if (data) {
+                setCurrentStreak(data.current_streak);
+                setLongestStreak(data.longest_streak);
+            }
+        };
+
+        fetchStreaks();
+    }, [user]);
+
+    useEffect(() => {
+    const fetchStreakLeaderboard = async () => {
+        const { data, error } = await supabase
+            .from("user_event_streaks")
+            .select(`
+                user_id,
+                current_streak,
+                longest_streak,
+                display_name
+            `)
+            .order("longest_streak", { ascending: false });
+
+        if (error) {
+            console.error("Streak leader error:", error);
+        } else {
+            setStreakUsers(
+                data.map((u) => ({
+                    user_id: u.user_id,
+                    name: u.display_name,
+                    current_streak: u.current_streak,
+                    longest_streak: u.longest_streak,
+                }))
+            );
+        }
+    };
+
+    fetchStreakLeaderboard();
+}, []);
+
     
     useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -121,7 +181,20 @@ export default function ProfileCard() {
             return;
         }
 
+        const { error: streakError } = await supabase
+            .from("user_event_streaks")
+            .update({ display_name: displayName }) // update the name here too
+            .eq("user_id", user.id);
+
+        if (streakError) throw new Error(`Streak update failed: ${streakError.message}`);
+
         setUsers((prevUsers) =>
+            prevUsers.map((u) =>
+                u.user_id === user.id ? { ...u, name: displayName } : u
+            )
+        );
+
+        setStreakUsers((prevUsers) =>
             prevUsers.map((u) =>
                 u.user_id === user.id ? { ...u, name: displayName } : u
             )
@@ -133,7 +206,7 @@ export default function ProfileCard() {
 
     return (
         <div className="bg-white rounded-lg shadow ml-30 mr-30 mb-30 p-15 w-4/5 h-screen justify-center">
-            <div className="flex flex-row items-center flex-wrap justify-center gap-20">
+            <div className="flex flex-row items-center flex-wrap justify-center gap-20 mb-20">
                 <ResponsiveCard 
                     title={displayName} 
                     className="flex flex-row justify-center p-5 w-full" 
@@ -147,7 +220,7 @@ export default function ProfileCard() {
                 >
                     <div>
                         {editing ? (
-                            <div className="flex flex-row gap-2">
+                            <div className="flex flex-row">
                                 <input
                                 type="text"
                                 value={displayName}
@@ -162,19 +235,18 @@ export default function ProfileCard() {
                             </div>
                             ) : (
                             <div className="flex flex-col">
-                                <span className="font-bold">{`${username}`}</span>
-                                <span>{`${email}`}</span>
+                                <span className="font-bold">{`${email}`}</span>
                                 <span>__________________________________</span>
                                 <span className="font-bold">Stats:</span>
                                 <span>{`You have attended ${events} events.`}</span>
                                 <span>{`You have ${points} points.`}</span>
+                                <span>{`Current Quest streak: ${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}</span>
+                                <span>{`Longest Quest streak: ${longestStreak} ${longestStreak === 1 ? 'day' : 'days'}`}</span>
                                 <span className="font-bold">🧭 Keep questing!</span>
-                                
                             </div>
                             )}
                     </div>
                 </ResponsiveCard>
-
                 <ResponsiveCard title="Inventory" className="flex flex-col justify-between items-center p-4">
                     <div className="flex flex-row flex-wrap gap-4 justify-between items-center p-4">
                         <img className="w-50 h-50 object-scale-down" src="https://media.istockphoto.com/id/1224791834/vector/vector-illustration-of-many-gold-coins.jpg?s=612x612&w=0&k=20&c=MXx_vY0z-OW3mgdbXaPlfu01EG1zharaUE-XbtaxKDc=" alt="Treasure Clipart"></img>
@@ -187,16 +259,34 @@ export default function ProfileCard() {
                         <span className="font-bold">{`${0} grails`}</span>
                     </div>
                 </ResponsiveCard>
-
-                <ResponsiveCard title="Leaderboard" className="w-md">
+            </div>
+            <div className="flex flex-row items-center flex-wrap justify-center gap-20">
+                <ResponsiveCard title="Points Leaderboard" className="w-md">
                     <hr className={classes.divider}></hr>
                     <div className={classes.leaderboardContainer}>
                         {users.map((user, index) => (
                         <div key={user.user_id} className={classes.row}>
                             <span className={classes.rank}>{index + 1}.</span>
                             <span className={classes.name}>{user.name}</span>
-                            <span className={classes.points}>{user.points} pts</span>
+                            <span className={classes.points}> 👑{user.points} pts</span>
                         </div>
+                        ))}
+                    </div>
+                </ResponsiveCard>
+
+                <ResponsiveCard title="Current Streak Leaderboard" className="w-md">
+                    <hr className={classes.divider}></hr>
+                    <div className={classes.leaderboardContainer}>
+                        {streakUsers.map((user, index) => (
+                            <div key={user.user_id} className={classes.row}>
+                                <span className={classes.rank}>{index + 1}.</span>
+                                <span className={classes.name}>{user.name}</span>
+
+                                {/* You can choose which number to display */}
+                                <span className={classes.points}>
+                                    🔥 {user.longest_streak} {user.longest_streak === 1 ? 'day' : 'days'}
+                                </span>
+                            </div>
                         ))}
                     </div>
                 </ResponsiveCard>
