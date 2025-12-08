@@ -8,7 +8,6 @@ import LabeledButton from "../buttons/LabeledButton";
 
 export default function ProfileCard() {
     const [user, setUser] = useState<any>(null);
-    const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [points, setPoints] = useState<number>(0);
     const [treasure, setTreasure] = useState<{chests: number, grails: number}>({chests: 0, grails: 0})
@@ -38,7 +37,6 @@ export default function ProfileCard() {
 
         if (user) {
             setUser(user);
-            setUsername(user.user_metadata?.username || "");
             setEmail(user.user_metadata?.email || "");
             setDisplayName(user.user_metadata?.full_name || "");
         }

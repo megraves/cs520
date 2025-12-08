@@ -76,6 +76,7 @@ async function geocodeByText(q: string): Promise<{ lat: number; lng: number } | 
 const GoMode = () => {
   const { questId } = useParams<{ questId: string }>();
   const [quest, setQuest] = useState<Event | null>(null);
+  const [grail, setGrail] = useState<Grail | null>(null);
   const [loading, setLoading] = useState(true);
 
   // --- Location feature: event coordinates resolved for the map (from DB or geocoding)
@@ -94,6 +95,32 @@ const GoMode = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchGrail = async () => {
+      if (!questId) return;
+
+      const { data, error } = await supabase
+      .from("grail_locations")
+      .select("*")
+      .eq("id", questId)
+      .single();
+
+      if (error) {
+        console.error("Error fetching grail quest:", error)
+      } else {
+        setQuest({
+          event_id: questId,
+          title: "Seek the Holy Grail",
+          location: "",
+          date_time_text: "",
+          event_date: data.date,
+          event_lat: data.lat,
+          event_lng: data.long,
+          checkin_count: data.checkin_count,
+        });
+        setCheckinCount(data.checkin_count ?? 0)
+      }
+    };
+
     const fetchQuest = async () => {
       if (!questId) return;
 
@@ -106,6 +133,7 @@ const GoMode = () => {
 
       if (error) {
         console.error("Error fetching quest:", error);
+        fetchGrail();
         setLoading(false);
         return;
       } else {
@@ -312,7 +340,7 @@ const GoMode = () => {
               )}
             </div>
             <div>
-              {hasCheckedIn ? (<TreasureCard type="chest" isCheckedIn={hasCheckedIn}/>) : (<></>)}
+              {hasCheckedIn ? (<TreasureCard type="chest"/>) : (<></>)}
             </div>
           </div>
           <CheckinMapCard

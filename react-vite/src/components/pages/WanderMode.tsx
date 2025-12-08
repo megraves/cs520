@@ -28,6 +28,14 @@ type Event = {
   checkin_count?: number | null; 
 };
 
+type Grail = {
+    id: string,
+    lat: number,
+    long: number,
+    date: string,
+}
+
+
 const parseTimeToMinutes = (timeStr?: string | null) => {
   if (!timeStr) return null;
 
@@ -53,6 +61,7 @@ const parseTimeToMinutes = (timeStr?: string | null) => {
 
 export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
+    const [grails, setGrails] = useState<Grail[]>([]);
     const [loading, setLoading] = useState(true);
     //const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
@@ -98,6 +107,26 @@ export default function HomePage() {
     fetchEvents();
     }, [localToday]);
 
+    useEffect(() => {
+        const fetchGrails = async () => {
+
+            const { data, error } = await supabase
+            .from("grail_locations")
+            .select("*")
+            .eq('date', localToday);
+
+            if (error) {
+                console.error("Error fetching events:", error);
+                setGrails([]);
+            } else {
+                console.log(`Grails ${data}`);
+                setGrails(data);
+            }
+        };
+
+        fetchGrails();
+    }, [localToday]);
+
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
     // Get events that have event_lat&event_lng EventWithCoords
@@ -120,6 +149,20 @@ export default function HomePage() {
         };
         }
     );
+
+    // Add the grail coordinates
+    grails.map(g => {
+        eventsWithCoords.push({
+            id: g.id,
+            title: "Seek the Holy Grail",
+            position: {
+                lat: g.lat as number,
+                lng: g.long as number,
+            },
+            status: "holy_grail",
+        })
+    });
+
     return (
         <Background>
             <HomeHeader>
