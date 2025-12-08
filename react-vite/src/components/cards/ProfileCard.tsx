@@ -27,7 +27,11 @@ export default function ProfileCard() {
         current_streak: number;
         longest_streak: number;
     }[]>([]);
-
+    const [grailUsers, setGrailUsers] = useState<{
+        user_id: string;
+        name: string;
+        grails: number;
+    }[]>([]);
 
     // Fetch current user on mount
     useEffect(() => {
@@ -67,35 +71,57 @@ export default function ProfileCard() {
     }, [user]);
 
     useEffect(() => {
-    const fetchStreakLeaderboard = async () => {
-        const { data, error } = await supabase
-            .from("user_event_streaks")
-            .select(`
-                user_id,
-                current_streak,
-                longest_streak,
-                display_name
-            `)
-            .order("longest_streak", { ascending: false });
+        const fetchStreakLeaderboard = async () => {
+            const { data, error } = await supabase
+                .from("user_event_streaks")
+                .select(`
+                    user_id,
+                    current_streak,
+                    longest_streak,
+                    display_name
+                `)
+                .order("longest_streak", { ascending: false });
 
-        if (error) {
-            console.error("Streak leader error:", error);
-        } else {
-            setStreakUsers(
-                data.map((u) => ({
-                    user_id: u.user_id,
-                    name: u.display_name,
-                    current_streak: u.current_streak,
-                    longest_streak: u.longest_streak,
-                }))
-            );
-        }
-    };
+            if (error) {
+                console.error("Streak leader error:", error);
+            } else {
+                setStreakUsers(
+                    data.map((u) => ({
+                        user_id: u.user_id,
+                        name: u.display_name,
+                        current_streak: u.current_streak,
+                        longest_streak: u.longest_streak,
+                    }))
+                );
+            }
+        };
 
-    fetchStreakLeaderboard();
-}, []);
+        fetchStreakLeaderboard();
+    }, []);
 
-    
+    useEffect(() => {
+        const fetchGrailsLeaderboard = async () => {
+            const { data, error } = await supabase
+                .from("leaderboard")
+                .select("user_id, display_name, grail_count")
+                .order("grail_count", { ascending: false });
+
+            if (error) {
+                console.error("Grails leaderboard error:", error);
+            } else {
+                setGrailUsers(
+                    (data || []).map((u) => ({
+                        user_id: u.user_id,
+                        name: u.display_name,
+                        grails: u.grail_count,
+                    }))
+                );
+            }
+        };
+
+        fetchGrailsLeaderboard();
+    }, []);
+
     useEffect(() => {
     const fetchLeaderboard = async () => {
         const { data, error } = await supabase
@@ -203,6 +229,12 @@ export default function ProfileCard() {
             )
         );
 
+        setGrailUsers((prevUsers) =>
+            prevUsers.map((u) =>
+                u.user_id === user.id ? { ...u, name: displayName } : u
+            )
+        );
+
         setEditing(false);
         alert("Profile updated!");
     };
@@ -293,6 +325,20 @@ export default function ProfileCard() {
                         ))}
                     </div>
                 </ResponsiveCard>
+
+                <ResponsiveCard title="Grail Leaderboard" className="w-md">
+                    <hr className={classes.divider}></hr>
+                    <div className={classes.leaderboardContainer}>
+                        {grailUsers.map((user, index) => (
+                            <div key={user.user_id} className={classes.row}>
+                                <span className={classes.rank}>{index + 1}.</span>
+                                <span className={classes.name}>{user.name}</span>
+                                <span className={classes.points}>🏆 {user.grails} grails</span>
+                            </div>
+                        ))}
+                    </div>
+                </ResponsiveCard>
+
             </div>
         </div>
     );
