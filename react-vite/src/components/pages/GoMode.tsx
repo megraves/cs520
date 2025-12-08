@@ -31,6 +31,8 @@ type Event = {
   event_lng?: number | null;
 
   checkin_count?: number | null;
+
+  type: "chest" | "grail";
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
@@ -94,6 +96,33 @@ const GoMode = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchGrail = async () => {
+      if (!questId) return;
+
+      const { data, error } = await supabase
+      .from("grail_locations")
+      .select("*")
+      .eq("id", questId)
+      .single();
+
+      if (error) {
+        console.error("Error fetching grail quest:", error)
+      } else {
+        setQuest({
+          event_id: questId,
+          title: "Seek the Holy Grail",
+          location: "",
+          date_time_text: "",
+          event_date: data.date,
+          event_lat: data.lat,
+          event_lng: data.long,
+          checkin_count: data.checkin_count,
+          type: "grail",
+        });
+        setCheckinCount(data.checkin_count ?? 0)
+      }
+    };
+
     const fetchQuest = async () => {
       if (!questId) return;
 
@@ -106,9 +135,11 @@ const GoMode = () => {
 
       if (error) {
         console.error("Error fetching quest:", error);
+        fetchGrail();
         setLoading(false);
         return;
       } else {
+        data["type"] = "chest";
         setQuest(data);
         setCheckinCount(data.checkin_count ?? 0); // 初始化打卡人数
       }
@@ -248,7 +279,7 @@ const GoMode = () => {
     const { error } = await supabase.from("event_checkins").insert({
       event_id: quest.event_id, // Your event_id is text
       user_id: user.id,
-      points: 10, // Set points yourself
+      points: quest.type === "chest" ? 10 : 20, // Set points yourself
     });
 
     if (error) {
@@ -312,7 +343,7 @@ const GoMode = () => {
               )}
             </div>
             <div>
-              {hasCheckedIn ? (<TreasureCard type="chest" isCheckedIn={hasCheckedIn}/>) : (<></>)}
+              {hasCheckedIn ? (<TreasureCard type={quest.type}/>) : (<></>)}
             </div>
           </div>
           <CheckinMapCard

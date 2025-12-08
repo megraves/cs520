@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from supabase import create_client, Client
 import hashlib
 from utils import parse_date_time_text, find_best_location_match
+import random
 
 umassLocations = {
     "Student Union": {"lat": 42.390874, "lng": -72.527599},
@@ -123,3 +124,31 @@ if events:
     print(f"Upserted {len(events)} events.")
 else:
     print("No events for today.")
+
+# Get two random locations to put grails
+grail_locs = random.sample(list(umassLocations.values()), 2)
+grails =[]
+
+def generate_grail_id(grail):
+    unique_string = (
+        (grail.get('lat') or "") +
+        (grail.get('long') or "") +
+        (grail.get('date') or "")
+    )
+    return hashlib.md5(unique_string.encode()).hexdigest()
+
+for loc in grail_locs:
+    grail = {
+        "lat": loc["lat"],
+        "long": loc["lng"],
+        "date": datetime.date.today()
+    }
+
+for grail in grails:
+    grail['id'] = generate_grail_id(grail)
+
+if grails:
+    supabase.table("grail_locations").upsert(grails, on_conflict="id").execute()
+else:
+    print("No grail locations generated.")
+

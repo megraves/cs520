@@ -138,9 +138,9 @@ export default function TreasureCard({type}: Props) {
         <div className="bg-white shadow p-5 rounded-xl flex flex-col items-center">
             <h1 className={classes.title}>Congratulations, you found treasure!</h1>
             {type == "chest" ? (
-                <img className="w-50 h-50 object-scale-down" src="https://media.istockphoto.com/id/1224791834/vector/vector-illustration-of-many-gold-coins.jpg?s=612x612&w=0&k=20&c=MXx_vY0z-OW3mgdbXaPlfu01EG1zharaUE-XbtaxKDc=" alt="Treasure Clipart"></img>
+                <img className="w-50 h-50 object-scale-down p-3" src="https://media.istockphoto.com/id/1224791834/vector/vector-illustration-of-many-gold-coins.jpg?s=612x612&w=0&k=20&c=MXx_vY0z-OW3mgdbXaPlfu01EG1zharaUE-XbtaxKDc=" alt="Treasure Clipart"></img>
             ) : (
-                <img className="w-35 h-50 object-scale-down" src="https://media.istockphoto.com/id/153540835/vector/cartoon-illustration-of-golden-cup-on-white-surfaces.jpg?s=612x612&w=0&k=20&c=qNzZ2hWo1dA0sD-jJ99CHtRMco6gvnMStBBVuTs-BIo=" alt="Holy Grail Clipart"></img>
+                <img className="w-35 h-50 object-scale-down p-3" src="https://media.istockphoto.com/id/153540835/vector/cartoon-illustration-of-golden-cup-on-white-surfaces.jpg?s=612x612&w=0&k=20&c=qNzZ2hWo1dA0sD-jJ99CHtRMco6gvnMStBBVuTs-BIo=" alt="Holy Grail Clipart"></img>
             )}
             <LabeledButton
                 ariaLabel={canClaim ? "Claim" : "Claimed!"}
