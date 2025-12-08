@@ -142,7 +142,7 @@ for loc in grail_locs:
     grail = {
         "lat": loc["lat"],
         "long": loc["lng"],
-        "date": localDate.today().strftime("%Y-%m-%d"),
+        "date": today.date().strftime("%Y-%m-%d"),
         "checkin_count": 0
     }
     grails.append(grail)
