@@ -1,0 +1,30 @@
+name: Rotate Grail Hourly
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Debug by Listing repository structure
+        run: ls -R .
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install supabase
+          pip install pytz
+
+      - name: Run rotation script
+        working-directory: ./Scraper
+        run: python holy_grail_time_update.py

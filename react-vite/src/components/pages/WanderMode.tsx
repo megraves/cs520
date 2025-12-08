@@ -33,9 +33,10 @@ type Grail = {
     lat: number,
     long: number,
     date: string,
+    start_time: string,
+    end_time: string,
     checkin_count: number,
 }
-
 
 const parseTimeToMinutes = (timeStr?: string | null) => {
   if (!timeStr) return null;
@@ -58,7 +59,20 @@ const parseTimeToMinutes = (timeStr?: string | null) => {
   return hours * 60 + minutes; // total minutes
 };
 
+// Helper to check if current time is within start/end
+const isGrailActive = (start?: string | null, end?: string | null) => {
+    if (!start || !end) return false;
 
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const startMinutes = parseTimeToMinutes(start);
+    const endMinutes = parseTimeToMinutes(end);
+
+    if (startMinutes === null || endMinutes === null) return false;
+
+    return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+};
 
 export default function HomePage() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -111,13 +125,15 @@ export default function HomePage() {
     useEffect(() => {
         const fetchGrails = async () => {
 
+            console.log(localToday);
+
             const { data, error } = await supabase
             .from("grail_locations")
             .select("*")
             .eq('date', localToday);
 
             if (error) {
-                console.error("Error fetching events:", error);
+                console.error("Error fetching grail locs:", error);
                 setGrails([]);
             } else {
                 console.log(`Grails ${data}`);
@@ -152,7 +168,7 @@ export default function HomePage() {
     );
 
     // Add the grail coordinates
-    grails.map(g => {
+    grails.filter(g => isGrailActive(g.start_time, g.end_time)).forEach(g => {
         eventsWithCoords.push({
             id: g.id,
             title: "Seek the Holy Grail",
