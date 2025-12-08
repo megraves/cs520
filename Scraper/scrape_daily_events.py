@@ -144,7 +144,9 @@ for loc in grail_locs:
         "lat": loc["lat"],
         "long": loc["lng"],
         "date": datetime.now(pytz.timezone("America/New_York")).strftime("%Y-%m-%d"),
-        "checkin_count": 0
+        "checkin_count": 0,
+        "start_time": None,
+        "end_time": None
     }
     grails.append(grail)
 
@@ -156,4 +158,3 @@ if grails:
     print(f"Upserted {len(grails)} grail locs.")
 else:
     print("No grail locations generated.")
-
