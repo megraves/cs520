@@ -132,9 +132,9 @@ grails =[]
 
 def generate_grail_id(grail):
     unique_string = (
-        (grail.get('lat') or "") +
-        (grail.get('long') or "") +
-        (grail.get('date') or "")
+        (str(grail.get('lat')) or "") +
+        (str(grail.get('long')) or "") +
+        (str(grail.get('date')) or "")
     )
     return hashlib.md5(unique_string.encode()).hexdigest()
 
