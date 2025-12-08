@@ -127,6 +127,7 @@ else:
 
 # Get two random locations to put grails
 grail_locs = random.sample(list(umassLocations.values()), 2)
+print(grail_locs)
 grails =[]
 
 def generate_grail_id(grail):
