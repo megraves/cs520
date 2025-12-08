@@ -126,29 +126,30 @@ else:
     print("No events for today.")
 
 # Get two random locations to put grails
-grail_locs = random.sample(list(umassLocations.values()), 2)
-grails =[]
+# grail_locs = random.sample(list(umassLocations.values()), 2)
+# grails =[]
 
-def generate_grail_id(grail):
-    unique_string = (
-        (grail.get('lat') or "") +
-        (grail.get('long') or "") +
-        (grail.get('date') or "")
-    )
-    return hashlib.md5(unique_string.encode()).hexdigest()
+# def generate_grail_id(grail):
+#     unique_string = (
+#         (grail.get('lat') or "") +
+#         (grail.get('long') or "") +
+#         (grail.get('date') or "")
+#     )
+#     return hashlib.md5(unique_string.encode()).hexdigest()
 
-for loc in grail_locs:
-    grail = {
-        "lat": loc["lat"],
-        "long": loc["lng"],
-        "date": datetime.date.today()
-    }
+# for loc in grail_locs:
+#     grail = {
+#         "lat": loc["lat"],
+#         "long": loc["lng"],
+#         "date": datetime.date.today(),
+#         "checkin_count": 0
+#     }
 
-for grail in grails:
-    grail['id'] = generate_grail_id(grail)
+# for grail in grails:
+#     grail['id'] = generate_grail_id(grail)
 
-if grails:
-    supabase.table("grail_locations").upsert(grails, on_conflict="id").execute()
-else:
-    print("No grail locations generated.")
+# if grails:
+#     supabase.table("grail_locations").upsert(grails, on_conflict="id").execute()
+# else:
+#     print("No grail locations generated.")
 
