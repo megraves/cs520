@@ -144,6 +144,7 @@ for loc in grail_locs:
         "date": datetime.now().strftime("%Y-%m-%d"),
         "checkin_count": 0
     }
+    grails.append(grail)
 
 for grail in grails:
     grail['id'] = generate_grail_id(grail)
