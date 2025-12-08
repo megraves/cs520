@@ -117,7 +117,7 @@ export default function HomePage() {
             .eq('date', localToday);
 
             if (error) {
-                console.error("Error fetching events:", error);
+                console.error("Error fetching grail locs:", error);
                 setGrails([]);
             } else {
                 console.log(`Grails ${data}`);
