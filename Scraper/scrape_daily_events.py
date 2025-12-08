@@ -153,7 +153,6 @@ for grail in grails:
 if grails:
     supabase.table("grail_locations").upsert(grails, on_conflict="id").execute()
     print(f"Upserted {len(grails)} grail locs.")
-
 else:
     print("No grail locations generated.")
 
