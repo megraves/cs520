@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, date
+from datetime import datetime, date as localDate
 from supabase import create_client, Client
 import hashlib
 from utils import parse_date_time_text, find_best_location_match
@@ -142,7 +142,7 @@ for loc in grail_locs:
     grail = {
         "lat": loc["lat"],
         "long": loc["lng"],
-        "date": date.today().strftime("%Y-%m-%d"),
+        "date": localDate.today().strftime("%Y-%m-%d"),
         "checkin_count": 0
     }
     grails.append(grail)
