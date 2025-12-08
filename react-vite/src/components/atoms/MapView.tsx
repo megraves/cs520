@@ -165,8 +165,8 @@ export default function MapView({
                             markerFillColor = "#e5e7eb";   // gray-200
                         } else if (e.status === "holy_grail") {
                             statusColorClasses = "bg-amber-100 text-amber-800";
-                            markerColor = "#f59e0b";       // amber-500
-                            markerFillColor = "#fef3c7";   // amber-100
+                            markerColor = "#f5690bff";       // amber-500
+                            markerFillColor = "#ffa64dff";   // amber-100
                         }
 
 
