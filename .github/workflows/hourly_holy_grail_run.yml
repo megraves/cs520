@@ -27,4 +27,4 @@ jobs:
 
       - name: Run rotation script
         working-directory: ./Scraper
-        run: python rotate_grail.py
+        run: python holy_grail_time_update.py
