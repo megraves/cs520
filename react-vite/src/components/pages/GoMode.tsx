@@ -304,8 +304,6 @@ const GoMode = () => {
     }
   };
 
-
-
   if (loading) return <LoadingSpinner></LoadingSpinner>;
   if (!quest) return <div>Quest not found!</div>;
 
@@ -327,11 +325,14 @@ const GoMode = () => {
               <p className="text-gray-500">{quest.date_time_text}</p>
 
               {/* Number of people already checked in */}
-              <p className="text-sm text-gray-700">
-                {checkinCount != null
-                  ? `Participants: ${checkinCount} `
-                  : "Loading paticipant counts…"}
-              </p>
+              {/* Show participants only for chest events */}
+              {quest.type === "chest" && (
+                <p className="text-sm text-gray-700">
+                  {checkinCount != null
+                    ? `Participants: ${checkinCount}`
+                    : "Loading participant counts…"}
+                </p>
+              )}
               {quest.url && (
                 <a
                   href={quest.url}
