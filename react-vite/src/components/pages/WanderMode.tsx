@@ -33,6 +33,7 @@ type Grail = {
     lat: number,
     long: number,
     date: string,
+    checkin_count: number,
 }
 
 
@@ -160,6 +161,7 @@ export default function HomePage() {
                 lng: g.long as number,
             },
             status: "holy_grail",
+            checkinCount: g.checkin_count ?? 0,
         })
     });
 

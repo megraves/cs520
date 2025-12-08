@@ -31,6 +31,8 @@ type Event = {
   event_lng?: number | null;
 
   checkin_count?: number | null;
+
+  type: "chest" | "grail";
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
@@ -76,7 +78,6 @@ async function geocodeByText(q: string): Promise<{ lat: number; lng: number } | 
 const GoMode = () => {
   const { questId } = useParams<{ questId: string }>();
   const [quest, setQuest] = useState<Event | null>(null);
-  const [grail, setGrail] = useState<Grail | null>(null);
   const [loading, setLoading] = useState(true);
 
   // --- Location feature: event coordinates resolved for the map (from DB or geocoding)
@@ -116,6 +117,7 @@ const GoMode = () => {
           event_lat: data.lat,
           event_lng: data.long,
           checkin_count: data.checkin_count,
+          type: "grail",
         });
         setCheckinCount(data.checkin_count ?? 0)
       }
@@ -137,6 +139,7 @@ const GoMode = () => {
         setLoading(false);
         return;
       } else {
+        data["type"] = "chest";
         setQuest(data);
         setCheckinCount(data.checkin_count ?? 0); // 初始化打卡人数
       }
@@ -276,7 +279,7 @@ const GoMode = () => {
     const { error } = await supabase.from("event_checkins").insert({
       event_id: quest.event_id, // Your event_id is text
       user_id: user.id,
-      points: 10, // Set points yourself
+      points: quest.type === "chest" ? 10 : 20, // Set points yourself
     });
 
     if (error) {
@@ -340,7 +343,7 @@ const GoMode = () => {
               )}
             </div>
             <div>
-              {hasCheckedIn ? (<TreasureCard type="chest"/>) : (<></>)}
+              {hasCheckedIn ? (<TreasureCard type={quest.type}/>) : (<></>)}
             </div>
           </div>
           <CheckinMapCard
