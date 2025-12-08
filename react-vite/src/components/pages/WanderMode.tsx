@@ -96,7 +96,7 @@ export default function HomePage() {
     };
 
     fetchEvents();
-    }, []);
+    }, [localToday]);
 
 
     if (loading) return <LoadingSpinner></LoadingSpinner>;
@@ -143,6 +143,8 @@ export default function HomePage() {
                     title={event.title}
                     location={event.location}
                     creator={event.creator ?? null}
+                    time={event.start_time ?? null}
+                    isVirtual={!event.location}
                     />
                 ))
                 )}

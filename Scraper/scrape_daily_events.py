@@ -25,6 +25,7 @@ umassLocations = {
     "Herter Hall": {"lat": 42.387238, "lng": -72.527164},
     "Bartlett Hall": {"lat": 42.388000, "lng": -72.528852},
     "Library, W. E. B. Du Bois": {"lat": 42.389736, "lng": -72.528168},
+    "Boyden Gymnasium, Joseph R. Rogers, Jr., Pool": {"lat": 42.386394, "lng": -72.530417},
 }
 
 URL = "https://events.umass.edu/calendar"

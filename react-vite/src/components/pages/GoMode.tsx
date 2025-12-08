@@ -11,6 +11,7 @@ import CheckinMapCard from "../cards/CheckinMapCard"
 import { useGeolocation } from "../../hooks/useGeolocation";
 import { getEventStatus } from "../../utils/eventTime";
 import * as classes from "../cards/card-classes"
+import TreasureCard from "../cards/TreasureCard";
 
 // Toggle: persist geocoding results back to DB when coordinates are missing
 const ENABLE_GEOCODE_BACKFILL = false;
@@ -33,6 +34,7 @@ type Event = {
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
+// TODO: change to 50m when done with testing/debugging
 const CHECKIN_RADIUS_M = 10000;
 
 // Haversine helper to compute straight-line distance in meters between two lat/lng points
@@ -84,6 +86,7 @@ const GoMode = () => {
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
   const [checkinCount, setCheckinCount] = useState<number | null>(null);
+  const [hasCheckedIn, setHasCheckedIn] = useState<boolean>(false)
 
   // --- Location feature: real-time user geolocation (watchPosition)
   const { pos: userPos, error: geoError, permission, isSecure, requestOnce } = useGeolocation(true);
@@ -166,7 +169,54 @@ const GoMode = () => {
     return getEventStatus(quest.event_date, quest.start_time, quest.end_time, new Date());
   }, [quest]);
 
-  const canCheckIn = eventStatus === "live" && isInRadius;
+
+  const fetchUserId = async () => {
+    const {data: { user }, error} = await supabase.auth.getUser();
+      console.log("Fetched user:", user, "Error:", error);
+
+      if (error) {
+          console.log("Error fetching userid");
+          return;
+      }
+      else {
+        return user?.id;
+      }
+  }
+
+  // See if the user has already checked into the event
+  useEffect(() => {
+    const fetchEventCheckin = async () => {
+
+      const userId = await fetchUserId();
+
+      const { data, error } = await supabase
+      //.from("daily_event_calendar")
+      .from("event_checkins")
+      .select("*")
+      .eq("event_id", questId)
+      .eq("user_id", userId)
+
+      console.log(data)
+
+      if (error) {
+        console.error("Error checkin check:", error);
+        return;
+      } else {
+        if (data.length == 0) {
+          console.log("length is zero")
+          setHasCheckedIn(false);
+        } else {
+          setHasCheckedIn(true);
+        }
+      }
+      
+    };
+    
+    fetchEventCheckin();
+
+  }, [questId]);
+
+  const canCheckIn: boolean = eventStatus === "live" && isInRadius && !isCheckingIn;
 
   // --- Location feature: where check-in will eventually persist to Supabase (demo for now)
   // const handleCheckIn = async () => {
@@ -176,9 +226,10 @@ const GoMode = () => {
     // Check again
     if (!canCheckIn) return;
     if (!quest) return;
+    if (isCheckingIn) return;
 
     setIsCheckingIn(true);
-    setCheckinMessage(null);
+    setCheckinMessage("Checking in...");
 
     // 1. Get current user
     const {
@@ -204,18 +255,21 @@ const GoMode = () => {
       // Same people, same event, single check in
       if ((error as any).code === "23505") {
         setCheckinMessage("✅ You have already checked!");
+        setIsCheckingIn(true);
+        return;
       } else {
         console.error("Check-in failed:", error);
         setCheckinMessage("❌ Checkin failed. Please try again later.");
+        setIsCheckingIn(false);
+        return;
       }
     } else {
-      setCheckinMessage("💰 Checkin success. You have claimed treasure and earned new points!");
-      setCheckinCount(checkinCount ? checkinCount + 1 : 1)
-
-      // TODO: Trigger an update of checkin numbers.
+      setCheckinMessage("💰 Checkin success. You have earned new points!");
+      setCheckinCount(checkinCount ? checkinCount + 1 : 1);
+      setIsCheckingIn(true);
+      setHasCheckedIn(true);
+      return;
     }
-
-    setIsCheckingIn(false);
   };
 
 
@@ -234,32 +288,39 @@ const GoMode = () => {
             </HomeHeader>
       <div className="flex justify-center mt-10">
         <div className="bg-white rounded-xl w-2/3 p-8 flex flex-col gap-3 shadow-md">
-          <h1 className={`${classes.title}`}>{quest.title}</h1>
-          <p className={`${classes.subtitle}`}>{quest.location}</p>
-          <p className="text-gray-500">{quest.date_time_text}</p>
+          <div className="flex flex-row justify-between">
+            <div>
+              <h1 className={`${classes.title}`}>{quest.title}</h1>
+              <p className={`${classes.subtitle}`}>{quest.location}</p>
+              <p className="text-gray-500">{quest.date_time_text}</p>
 
-          {/* Number of people already checked in */}
-          <p className="text-sm text-gray-700">
-            {checkinCount != null
-              ? `Participants: ${checkinCount} `
-              : "Loading paticipant counts…"}
-          </p>
-          {quest.url && (
-            <a
-              href={quest.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm underline text-blue-700"
-            >
-              Go to Event Website
-            </a>
-          )}
+              {/* Number of people already checked in */}
+              <p className="text-sm text-gray-700">
+                {checkinCount != null
+                  ? `Participants: ${checkinCount} `
+                  : "Loading paticipant counts…"}
+              </p>
+              {quest.url && (
+                <a
+                  href={quest.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm underline text-blue-700"
+                >
+                  Go to Event Website
+                </a>
+              )}
+            </div>
+            <div>
+              {hasCheckedIn ? (<TreasureCard type="chest" isCheckedIn={hasCheckedIn}/>) : (<></>)}
+            </div>
+          </div>
           <CheckinMapCard
             eventPos={eventPos}
             userPos={userPos ?? null}
             radiusM={CHECKIN_RADIUS_M}
             distanceM={distanceM}
-            canCheckIn={canCheckIn && !isCheckingIn}
+            canCheckIn={canCheckIn && !isCheckingIn && !hasCheckedIn}
             eventStatus={eventStatus ?? undefined}
             isInRadius={isInRadius}
             onCheckIn={handleCheckIn}
