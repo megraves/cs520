@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 from supabase import create_client, Client
 import hashlib
 from utils import parse_date_time_text, find_best_location_match
 import random
+import pytz
 
 umassLocations = {
     "Student Union": {"lat": 42.390874, "lng": -72.527599},
@@ -127,13 +128,14 @@ else:
 
 # Get two random locations to put grails
 grail_locs = random.sample(list(umassLocations.values()), 2)
+print(grail_locs)
 grails =[]
 
 def generate_grail_id(grail):
     unique_string = (
-        (grail.get('lat') or "") +
-        (grail.get('long') or "") +
-        (grail.get('date') or "")
+        (str(grail.get('lat')) or "") +
+        (str(grail.get('long')) or "") +
+        (str(grail.get('date')) or "")
     )
     return hashlib.md5(unique_string.encode()).hexdigest()
 
@@ -141,14 +143,17 @@ for loc in grail_locs:
     grail = {
         "lat": loc["lat"],
         "long": loc["lng"],
-        "date": datetime.date.today()
+        "date": datetime.now(pytz.timezone("America/New_York")).strftime("%Y-%m-%d"),
+        "checkin_count": 0
     }
+    grails.append(grail)
 
 for grail in grails:
     grail['id'] = generate_grail_id(grail)
 
 if grails:
     supabase.table("grail_locations").upsert(grails, on_conflict="id").execute()
+    print(f"Upserted {len(grails)} grail locs.")
 else:
     print("No grail locations generated.")
 

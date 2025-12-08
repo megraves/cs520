@@ -111,13 +111,15 @@ export default function HomePage() {
     useEffect(() => {
         const fetchGrails = async () => {
 
+            console.log(localToday);
+
             const { data, error } = await supabase
             .from("grail_locations")
             .select("*")
             .eq('date', localToday);
 
             if (error) {
-                console.error("Error fetching events:", error);
+                console.error("Error fetching grail locs:", error);
                 setGrails([]);
             } else {
                 console.log(`Grails ${data}`);
