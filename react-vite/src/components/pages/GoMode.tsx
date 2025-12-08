@@ -33,6 +33,7 @@ type Event = {
   checkin_count?: number | null;
 
   type: "chest" | "grail";
+  creator?: string | null;
 };
 
 // --- Location feature: check-in radius (meters). Within this, "Check in" is enabled.
@@ -344,7 +345,7 @@ const GoMode = () => {
               )}
             </div>
             <div>
-              {hasCheckedIn ? (<TreasureCard type={quest.type}/>) : (<></>)}
+              {hasCheckedIn ? !quest.creator ? (<TreasureCard type={quest.type}/>) : (<></>) : (<></>)}
             </div>
           </div>
           <CheckinMapCard
