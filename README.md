@@ -24,24 +24,33 @@ Navigate to http://localhost:5173/
 
 ```sh
 # Project File Structure:
-src
+
+Scraper                   # python script to get umass events from website and set grail locations
+figma                     # mock up of proposed UI
+react-vite                # react app root
 |
-+--                   # application layer containing:
-|   |
-|   +-- App.css       # application themes
-|   +-- App.tsx       # main application component
-|   +-- main.tsx      # root of the application
-|   +-- index.css
-|
-+-- assets            # assets folder can contain all the static files such as images, logos, etc.
-|
-+-- components        # shared components used across the entire application, organization inspired by the Atomic Design
-|   |
-|   +-- atoms         # smallest and most basic sub-components (i.e. background, headers)
-|   +-- buttons       # different types of reusable button components
-|   +-- cards         # reusable and specific responsive cards to hold and display information
-|   +-- pages         # UI containing all components rendered on depending on chosen route
-|
-+-- lib               # reusable libraries preconfigured for the application (specifically our Supabase client)
++-- src
+    |
+    +--                   # application layer containing:
+    |   |
+    |   +-- App.css       # application themes
+    |   +-- App.tsx       # main application component
+    |   +-- main.tsx      # root of the application
+    |   +-- index.css
+    |
+    +-- assets            # assets folder can contain all the static files such as images, logos, etc.
+    |
+    +-- components        # shared components used across the entire application, organization inspired by the Atomic Design
+    |   |
+    |   +-- atoms         # smallest and most basic sub-components (i.e. background, headers)
+    |   +-- buttons       # different types of reusable button components
+    |   +-- cards         # reusable and specific responsive cards to hold and display information
+    |   +-- pages         # UI containing all components rendered on depending on chosen route
+    |
+    +-- hooks             # hook to retrieve user's geolocation
+    |
+    +-- lib               # reusable libraries preconfigured for the application (specifically our Supabase client)
+    |
+    +-- utils             # util functions to parse and build event date and time
 ```
 [Source: Bulletproof React](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md)
