@@ -1,2 +1,17 @@
 @import "tailwindcss";
 
+/* CSS for holy-grail */
+.holy-grail-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.holy-grail-inner {
+    width: 14px;
+    height: 14px;
+    background-color: #fef3c7; /* amber-100，markerFillColor */
+    border: 2px solid #f59e0b; /* amber-500，markerColor */
+    border-radius: 4px;        /* 4 = rounded square； 0 for standard square */
+    box-shadow: 0 0 4px rgba(245, 158, 11, 0.6);
+}

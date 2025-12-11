@@ -29,6 +29,13 @@ const userIcon = L.icon({
     shadowSize: [41, 41],
 });
 
+const holyGrailIcon = L.divIcon({
+    className: "holy-grail-icon",                 
+    html: '<div class="holy-grail-inner"></div>', 
+    iconSize: [20, 20],                         
+    iconAnchor: [10, 10],                      
+});
+
 // Add a tiny random offset (±delta degrees) to lat/lng
 const jitterLatLng = (lat: number, lng: number, delta = 0.0002) => {
     const randomOffset = () => (Math.random() * 2 - 1) * delta; // ±delta
@@ -140,7 +147,7 @@ export default function MapView({
                 {eventMarkers &&
                     eventMarkers.map((e) => {
                         const { lat, lng } = jitterLatLng(e.lat, e.lng);
-                        
+
                         const statusLabel =
                             e.status === "live"
                                 ? "Live now"
@@ -167,6 +174,43 @@ export default function MapView({
                             statusColorClasses = "bg-amber-100 text-amber-800";
                             markerColor = "#f5690bff";       // amber-500
                             markerFillColor = "#ffa64dff";   // amber-100
+                        }
+                        if (e.status === "holy_grail") {
+                            return (
+                                <Marker
+                                    key={e.id}
+                                    position={[lat, lng]}
+                                    icon={holyGrailIcon}
+                                    eventHandlers={{
+                                        click: () => onMarkerClick?.(e.id),
+                                    }}
+                                >
+                                    <Tooltip
+                                        direction="top"
+                                        offset={[0, -10]}
+                                        opacity={0.95}
+                                        sticky
+                                    >
+                                        <div className="text-xs sm:text-sm">
+                                            <div className="font-semibold">{e.title}</div>
+                                            {e.timeText && (
+                                                <div className="text-gray-700">{e.timeText}</div>
+                                            )}
+                                            {/* Holy Grail 不显示 checkinCount */}
+                                            <div className="mt-1">
+                                                <span
+                                                    className={
+                                                        "inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium " +
+                                                        statusColorClasses
+                                                    }
+                                                >
+                                                    {statusLabel}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Tooltip>
+                                </Marker>
+                            );
                         }
 
 
@@ -196,12 +240,13 @@ export default function MapView({
                                         {e.timeText && (
                                             <div className="text-gray-700">{e.timeText}</div>
                                         )}
-                                        {e.status !== "holy_grail" &&(
+                                        {/* {e.status !== "holy_grail" && ( */}
+                                        {e.status  && (
                                             <div>
                                                 {e.checkinCount ?? 0} people checked in
                                             </div>
                                         )}
-                                       
+
                                         <div className="mt-1">
                                             <span
                                                 className={
@@ -212,7 +257,7 @@ export default function MapView({
                                                 {statusLabel}
                                             </span>
                                         </div>
-                                        
+
                                     </div>
                                 </Tooltip>
                             </CircleMarker>
